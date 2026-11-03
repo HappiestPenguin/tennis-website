@@ -9,7 +9,7 @@ date: 2015-05-30
 3. Jörg Harwardt / Thomas Müller
 4. Anne Soltow / Tobias Müller
 5. Dieter Aust / Detlef Engel
-6. Werner Tantarn / Hans Dudeck
+6. Werner Tantarn / Hans Dudek
 7. Dirk Bohm / Eric Neumann
 8. Fred Thomas Engel / Gerd Lanzke
 9. Beate Sallmann / Anette Fanter

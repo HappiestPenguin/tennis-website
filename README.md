@@ -25,12 +25,12 @@ Alle Inhalte der alten Seite sind übernommen: 115 News seit 2012, Fotoalbum, Tu
 
 ## Inhalte pflegen
 
-### Möglichkeit 1 – Online-Redaktion (für den Vorstand, nach Veröffentlichung)
-`https://www.bsg-tennis.de/admin/` → mit GitHub anmelden → News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten → „Veröffentlichen“. Nach ca. 1 Minute ist die Änderung online. Funktioniert in allen aktuellen Browsern (Safari, Chrome, Firefox, Edge), am besten am Computer oder Tablet.
+### Möglichkeit 1 – Lokale Redaktion (auf dem eigenen Rechner)
+`npm start` → <http://localhost:4321/redaktion/>. News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten; speichert direkt in die Projektdateien, die Vorschau aktualisiert sich sofort. Danach in GitHub Desktop „Commit“ + „Push“ → nach ca. 1 Minute online. Läuft in jedem Browser.
 
-### Möglichkeit 2 – Lokale Redaktion (auf deinem Rechner)
-`npm run dev` → <http://localhost:4321/redaktion/>. Gleiche Bereiche, speichert direkt in die Projektdateien, Vorschau aktualisiert sich sofort.
-> Unter `localhost:4321/admin/` startet die Online-Redaktion im Chrome/Edge-Modus „lokales Repository“. Safari und Firefox können das technisch nicht (fehlende Dateisystem-Schnittstelle) und werden deshalb automatisch zur lokalen Redaktion umgeleitet.
+### Möglichkeit 2 – Online-Redaktion `/admin/` (derzeit Testversion)
+Dieselbe Oberfläche auf der veröffentlichten Seite. **Aktuell nur zum Vorführen:** Anmeldung mit dem Test-Zugang `Bearbeiter1` / `Test1234`, Änderungen bleiben nur im jeweiligen Browserfenster und werden nicht veröffentlicht. Der Test-Zugang steht (verschlüsselt, aber nicht geheim) im Seitencode – das ist hier unkritisch, weil sich darüber nichts verändern lässt.
+Für den echten Betrieb ist eine Anmeldung mit E-Mail + Passwort über eine kleine PHP-Schnittstelle beim Webhoster vorgesehen (siehe `OFFENE-PUNKTE.md`).
 
 ### Möglichkeit 3 – Dateien direkt bearbeiten
 Alles sind einfache Textdateien (siehe Aufbau unten).
@@ -96,7 +96,6 @@ tennis-website/
 ├── public/                Wird 1:1 veröffentlicht
 │   ├── css/style.css      Gestaltung (gegliedert, kommentiert)
 │   ├── js/main.js         Komfortfunktionen (Menü, Vollbildansicht, PDF-Betrachter, Kalender …)
-│   ├── admin/             Online-Redaktion (Sveltia CMS, Einstellungen in config.yml)
 │   └── media/             Bilder & PDFs (uploads/ = neue Dateien aus der Redaktion)
 ├── lib/                   Der Seitengenerator
 │   ├── content.mjs        Inhalte einlesen, News-Archiv-Regel
@@ -118,20 +117,10 @@ tennis-website/
 ## Veröffentlichen (Vorschlag)
 
 1. Projekt in ein GitHub-Repository des Vereins hochladen (kostenlos).
-2. In `public/admin/config.yml` bei `repo:` den Repository-Namen eintragen.
-3. Repository → Settings → Pages → Source: „GitHub Actions“. Ab dann baut `.github/workflows/deploy.yml` die Seite bei jeder Änderung und stündlich (Wetter) neu.
-4. Domain `bsg-tennis.de` beim bisherigen Anbieter per DNS auf GitHub Pages umstellen.
-5. Vorstandsmitglieder als Mitarbeiter ins Repository einladen – sie melden sich dann unter `/admin/` an.
+2. Repository → Settings → Pages → Source: „GitHub Actions“. Ab dann baut `.github/workflows/deploy.yml` die Seite bei jeder Änderung und stündlich (Wetter) neu.
+3. Domain `bsg-tennis.de` beim bisherigen Anbieter per DNS auf den neuen Speicherort umstellen (E-Mail-Einträge/MX nicht ändern).
 
-### Login für die Online-Redaktion (`/admin/`)
-
-Auf einer statischen Website lässt sich kein Passwort sicher hinterlegen: Alles, was im Seitencode steht, kann jeder lesen. Die Anmeldung läuft deshalb über **GitHub-Konten**:
-
-- Jede Person, die Inhalte pflegen soll, legt ein kostenloses GitHub-Konto an (Benutzername + Passwort + Bestätigung per App/SMS) und wird ins Repository eingeladen. Austritt = Einladung entfernen.
-- Alternativ ein gemeinsames Vereinskonto (z. B. „bsg-tennis-redaktion“), dessen Zugangsdaten der Vorstand weitergibt. Einfacher, aber man sieht nicht, wer was geändert hat.
-- Für den Knopf „Mit GitHub anmelden“ braucht es einmalig den kostenlosen [Sveltia CMS Authenticator](https://github.com/sveltia/sveltia-cms-auth) (ca. 15 Minuten Einrichtung, Adresse danach in `config.yml` unter `backend: base_url:` eintragen). Ohne ihn geht die Anmeldung auch per Zugangsschlüssel („Personal Access Token“) – das ist aber für Laien umständlicher.
-
-Die **lokale Redaktion** (`npm start` → `/redaktion/`) braucht keinen Login: Sie läuft nur auf dem eigenen Rechner und ist von außen nicht erreichbar.
+Die Online-Redaktion unter `/admin/` wird beim Bauen automatisch erzeugt (Quelle: `tools/redaktion/`), derzeit als Testversion – siehe oben.
 
 ### Vorschau-/Testversion (z. B. `maik.bsg-tennis.de`)
 

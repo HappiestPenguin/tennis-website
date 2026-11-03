@@ -108,7 +108,7 @@ export async function build({ quiet = false } = {}) {
     ['/angebote/', 'angebote', (s) => P.angebote({ s, training, faq })],
     ['/vorstand/', 'vorstand', (s) => P.vorstand({ s, vorstand })],
     ['/jugend/', 'jugend', (s) => P.jugend({ s, vorstand, training })],
-    ['/satzung/', 'satzung', (s) => P.contentPage({ s, eyebrow: 'Verein' })],
+    ['/satzung/', 'satzung', (s) => P.contentPage({ s: { ...s, html: s.html.replace(/<p>\{\{beitraege\}\}<\/p>/, P.beitragsTabelle(verein)) }, eyebrow: 'Verein' })],
     ['/geschichte/', 'geschichte', (s) => P.contentPage({ s, eyebrow: 'Seit 1952', cls: 'prose--timeline' })],
     ['/turnierberichte/', 'turnierberichte', (s) => P.contentPage({ s, eyebrow: 'Archiv', toc: true }), { noindex: true }],
     ['/fotoalbum/', 'fotoalbum', (s) => P.fotoalbum({ s, alben })],
@@ -148,6 +148,9 @@ export async function build({ quiet = false } = {}) {
   );
   // Eigene Adresse für GitHub Pages (z. B. maik.bsg-tennis.de)
   if (SITE_URL && !BASE) write(path.join(DIST, 'CNAME'), new URL(SITE_URL).hostname + '\n');
+  // Online-Redaktion als Testversion unter /admin/ (Anmeldung mit Test-Zugang, speichert nichts)
+  baueAdminTest();
+
   // Mögliche Link-Ziele für die Redaktion (z. B. Link im Hinweis-Banner) – nur öffentliche Seiten
   const linkziele = [
     ...NAV.flatMap((n) => (n.children ? n.children : [n])).map((n) => ({ gruppe: 'Seiten', url: n.url, titel: n.label })),
@@ -187,6 +190,48 @@ export async function build({ quiet = false } = {}) {
     if (BASE) html = html.replace(new RegExp(`(href|src|action)="/(?!/|${BASE.slice(1)}/)`, 'g'), `$1="${BASE}/`);
     return html;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Online-Redaktion (Testversion)
+// ---------------------------------------------------------------------------
+
+/**
+ * Legt die Redaktion unter dist/admin/ ab: dieselbe Oberfläche wie lokal (tools/redaktion/),
+ * aber im Testmodus. Inhalte kommen aus einer Momentaufnahme (daten.json, ohne Entwürfe);
+ * Änderungen bleiben nur im Browserfenster. Für echtes Speichern ist eine Server-Anmeldung
+ * (PHP beim Webhoster) vorgesehen – siehe OFFENE-PUNKTE.md.
+ */
+function baueAdminTest() {
+  const ziel = path.join(DIST, 'admin');
+  const quelle = path.join(ROOT, 'tools/redaktion');
+  fs.mkdirSync(path.join(ziel, 'lib'), { recursive: true });
+  for (const f of ['redaktion.js', 'redaktion.css']) fs.copyFileSync(path.join(quelle, f), path.join(ziel, f));
+  for (const f of ['markdown.mjs', 'helpers.mjs']) fs.copyFileSync(path.join(ROOT, 'lib', f), path.join(ziel, 'lib', f));
+
+  // Momentaufnahme aller bearbeitbaren Inhalte (Entwürfe bleiben draußen – die sind nicht öffentlich)
+  const dateien = {};
+  for (const dir of ['content/news', 'content/seiten', 'data']) {
+    for (const f of fs.readdirSync(path.join(ROOT, dir))) {
+      if (!/\.(md|json)$/.test(f)) continue;
+      const text = fs.readFileSync(path.join(ROOT, dir, f), 'utf8');
+      if (/^entwurf:\s*true/m.test(text.split(/\n---/)[0] || '')) continue;
+      dateien[`${dir}/${f}`] = text;
+    }
+  }
+  write(path.join(ziel, 'daten.json'), JSON.stringify({ stand: new Date().toISOString(), dateien }));
+
+  const html = fs
+    .readFileSync(path.join(quelle, 'index.html'), 'utf8')
+    .replace('<title>Lokale Redaktion', '<title>Redaktion')
+    .replace('href="/favicon.svg"', `href="${BASE}/favicon.svg"`)
+    .replace('href="/css/style.css"', `href="${BASE}/css/style.css"`)
+    .replace('href="/redaktion/redaktion.css"', `href="${BASE}/admin/redaktion.css"`)
+    .replace('<script defer src="/redaktion/redaktion.js"></script>', `<script>window.REDAKTION_DEMO = true; window.REDAKTION_BASIS = '${BASE}';</script>\n  <script defer src="${BASE}/admin/redaktion.js"></script>`)
+    .replace('href="/redaktion/">Lokale Redaktion', `href="${BASE}/admin/">Redaktion`)
+    .replace(/<span class="ed-hint">[^<]*<\/span>/, '<span class="ed-hint">Testversion zum Ausprobieren: Änderungen bleiben nur in diesem Browserfenster und werden nicht veröffentlicht.</span>')
+    .replace('class="btn btn-small btn-secondary" href="/"', `class="btn btn-small btn-secondary" href="${BASE}/"`);
+  write(path.join(ziel, 'index.html'), html);
 }
 
 // ---------------------------------------------------------------------------

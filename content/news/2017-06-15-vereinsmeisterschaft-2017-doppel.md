@@ -11,4 +11,4 @@ ungefaehr: true
 4. Beate Sallmann / Frank Engel
 5. Anette Fanter / Eric Neumann
 6. Fred Thomas-Engel / Peter Lyko
-7. Hans Dudeck / Werner Tantarn
+7. Hans Dudek / Werner Tantarn

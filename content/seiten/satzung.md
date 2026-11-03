@@ -13,13 +13,7 @@ beschreibung: Abteilungsordnung, Satzung der BSG Stahl Eisenhüttenstadt e.V. un
 
 ## Unsere Beiträge
 
-Stand 2023, _Änderungen vorbehalten_. Beiträge für die Platznutzung pro Jahr:
-
-| Mitgliedsgruppe | Jahresbeitrag |
-|---|---|
-| Kinder / Schüler | 138,- € |
-| Studenten / Azubis | 110,- € |
-| alle anderen Mitglieder | 130,- € |
+{{beitraege}}
 
 Details zur Aufnahmegebühr erfragen Sie bitte beim [Vorstand](/kontakt/).
 

@@ -19,7 +19,7 @@ Abteilungsleiter D. Engel verabschiedete nach der Siegerehrung alle 4 Abiturient
 7. Jens Drobbe / Thomas Fratz
 8. Fred Thomas Engel / Dirk Bohm
 9. Gerd Lanzke / Achim Richter / Jörg Harwardt
-10. Hans Dudeck / Detlef Wundersee
+10. Hans Dudek / Detlef Wundersee
 11. Silvia Waschek / Alexander Waschek
 
 [Hier findet ihr die Einladung zur Veranstaltung (PDF).](/media/mediapool/122/1226796/data/VereinsdoppelturnierderBSG.pdf)

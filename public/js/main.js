@@ -27,13 +27,23 @@ const basis = () => (document.querySelector('link[rel="stylesheet"][href$="/css/
   // =========================================================================
   const menuBtn = $('.menu-button');
   const nav = $('#hauptnavigation');
-  menuBtn?.addEventListener('click', () => {
-    const open = menuBtn.getAttribute('aria-expanded') !== 'true';
+  const header = $('.site-header');
+  // Menü immer direkt unter der Kopfzeile beginnen lassen – auch wenn darüber noch
+  // eine Leiste steht (z. B. „Vorschau“) und die Kopfzeile dadurch tiefer sitzt.
+  const menuPosition = () => nav && header && nav.style.setProperty('top', `${Math.max(0, header.getBoundingClientRect().bottom)}px`);
+  const setMenu = (open) => {
     menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+    if (open) menuPosition();
     nav.classList.toggle('is-open', open);
     document.documentElement.classList.toggle('menu-open', open);
     document.body.style.overflow = open ? 'hidden' : '';
-  });
+  };
+  menuBtn?.addEventListener('click', () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'));
+  window.addEventListener('resize', () => nav?.classList.contains('is-open') && menuPosition());
+  // Mit der Escape-Taste schließen; beim Wechsel auf die breite Ansicht ebenfalls
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && nav?.classList.contains('is-open') && (setMenu(false), menuBtn.focus()));
+  matchMedia('(min-width: 1061px)').addEventListener?.('change', (m) => m.matches && setMenu(false));
   // Untermenü „Verein“ per Klick/Tipp öffnen (wichtig für Touch-Geräte)
   $$('.nav-toggle').forEach((t) =>
     t.addEventListener('click', () => {

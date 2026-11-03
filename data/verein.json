@@ -2,6 +2,21 @@
   "mitglieder": 55,
   "mitglieder_jugend": 16,
   "mitglieder_stand": "2026-01-01",
+  "beitraege": [
+    {
+      "gruppe": "Kinder / Schüler",
+      "betrag": 138
+    },
+    {
+      "gruppe": "Studierende / Azubis",
+      "betrag": 110
+    },
+    {
+      "gruppe": "Erwachsene",
+      "betrag": 130
+    }
+  ],
+  "beitraege_stand": "2023",
   "hinweis_banner": {
     "text": "Winterpause: Der Spielbetrieb auf der Anlage ist seit dem 1. November eingestellt.",
     "link": "/termine/",

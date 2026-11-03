@@ -61,7 +61,7 @@ Unsere Seiten enthalten Links zu anderen Websites (z. B. TVBB, WetterOnline, Klu
 
 ## Redaktionsbereich
 
-Der Bereich „Redaktion“ (/admin) ist nur für Vereinsmitglieder mit Zugangsberechtigung bestimmt. Beim Öffnen dieses Bereichs wird die Redaktionssoftware (Sveltia CMS) vom Dienst unpkg.com geladen und die Anmeldung erfolgt über GitHub. Für normale Besucher der Website spielt dies keine Rolle.
+Der Bereich „Redaktion“ (/admin) ist nur für Vereinsmitglieder mit Zugangsberechtigung bestimmt. Er lädt keine Inhalte von fremden Servern; die Anmeldung wird nur für die Dauer der Sitzung im Browser vermerkt. Für normale Besucher der Website spielt dies keine Rolle.
 
 ## Ihre Rechte
 

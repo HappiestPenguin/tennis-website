@@ -77,3 +77,12 @@
 
 .ed-toast { position: fixed; right: 1rem; bottom: 1rem; z-index: 20; padding: 0.8rem 1.1rem; border-radius: var(--radius-sm); background: var(--green); color: #fff; font-weight: 600; box-shadow: var(--shadow-lg); }
 .ed-toast.is-error { background: var(--bad); }
+
+/* Anmeldung (Testversion) */
+.ed-body [hidden] { display: none !important; }
+.ed-layout--login { grid-template-columns: 1fr; }
+.ed-layout--login .ed-nav { display: none; }
+.ed-login { width: min(100%, 400px); margin: 3rem auto; display: grid; gap: 1rem; padding: 2rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.ed-login h1 { margin: 0; }
+.ed-login .muted { margin: -0.5rem 0 0.5rem; }
+.ed-login-fehler { margin: 0; color: var(--clay-600); font-weight: 600; }

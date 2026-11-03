@@ -76,12 +76,22 @@
     {
       "name": "Detlef Engel",
       "funktion": "Trainer",
-      "zustaendig": "Kindertraining weiblich",
+      "zustaendig": "Kindertraining weiblich, Herren",
       "telefon": "+49 175 3555019",
       "email": "",
       "foto": "",
       "kontakt_freigegeben": true,
       "kinder_jugend": true
+    },
+    {
+      "name": "Hans Dudek",
+      "funktion": "Trainer",
+      "zustaendig": "Senioren AK70",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": false
     }
   ]
 }

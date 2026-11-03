@@ -16,6 +16,6 @@ Ich kann Eltern nur den Rat geben: Unterstützen Sie Ihre Sprösslinge so gut es
 
 Tennis ist ein wunderbarer Sport, man kann ihn bis ins hohe Alter betreiben. Ich sehe es an mir, wenn ich mit 86 Jahren noch Tennis spiele und mich mit 50-, 60- oder 70-Jährigen duelliere. Das Tennisspielen gibt einem so viel Freude, es fördert das Selbstbewusstsein, und einmal angefangen, möchte man es nie mehr missen.
 
-_Hans Dudeck_
+_Hans Dudek_
 
 [Den Originaltext als PDF ansehen](/media/mediapool/122/1226796/resources/HansDudeck.pdf)

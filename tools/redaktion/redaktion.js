@@ -12,13 +12,64 @@
  *   • Trainingszeiten: Uhrzeit-Auswahl, Plätze 0–4, Trainer aus der Trainerliste
  *   • Termine und Trainingszeiten werden beim Speichern automatisch sortiert
  *
- * Gespeichert wird über die kleine Schnittstelle in api.mjs direkt in die Projektdateien.
+ * Zwei Betriebsarten:
+ *   • Lokal (npm start → /redaktion/): speichert über api.mjs direkt in die Projektdateien.
+ *   • Testversion (/admin/ auf der veröffentlichten Seite): Anmeldung mit Test-Zugang, Inhalte
+ *     kommen aus einer Momentaufnahme (admin/daten.json). Änderungen bleiben nur in diesem
+ *     Browserfenster (sessionStorage) und werden NICHT veröffentlicht – gedacht zum Vorführen.
+ *     Der Test-Zugang ist bewusst einfach und KEIN Schutz: Es gibt dort nichts zu schützen,
+ *     weil nichts gespeichert wird. Für den echten Betrieb ist eine Server-Anmeldung (PHP) geplant.
  */
 (() => {
   'use strict';
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const main = $('#ed-main');
+  const DEMO = !!window.REDAKTION_DEMO; // Online-Testversion (siehe Kopfkommentar)
+  const BASIS = window.REDAKTION_BASIS || ''; // Unterordner der Seite, z. B. /tennis-website
+
+  // =========================================================================
+  // Testversion: Anmeldung (nur Vorführzweck, siehe Kopfkommentar)
+  // =========================================================================
+  const TEST_ZUGANG = 'aa7ab9c0ea0a844bc74269b7e4c05da99d7f0e361794f7a42064d6c9e5221b50'; // SHA-256 von „Benutzer:Passwort“
+  const LOGIN_KEY = 'redaktion-angemeldet';
+  const angemeldet = () => { try { return sessionStorage.getItem(LOGIN_KEY) === '1'; } catch { return false; } };
+  const sha256 = async (text) =>
+    Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))).map((b) => b.toString(16).padStart(2, '0')).join('');
+
+  if (DEMO && !angemeldet()) {
+    document.querySelector('.ed-layout').classList.add('ed-layout--login');
+    main.innerHTML = `<form class="ed-login" autocomplete="on">
+      <h1>Anmelden</h1>
+      <p class="muted">Redaktion der BSG Stahl Tennis – Testversion</p>
+      <label class="ed-field"><span>Benutzername</span><input name="user" autocomplete="username" required autofocus></label>
+      <label class="ed-field"><span>Passwort</span><input name="pass" type="password" autocomplete="current-password" required></label>
+      <p class="ed-login-fehler" role="alert" hidden>Benutzername oder Passwort stimmt nicht.</p>
+      <button class="btn btn-primary" type="submit">Anmelden</button>
+    </form>`;
+    const f = $('.ed-login', main);
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if ((await sha256(`${f.user.value.trim()}:${f.pass.value}`)) === TEST_ZUGANG) {
+        try { sessionStorage.setItem(LOGIN_KEY, '1'); } catch {}
+        location.reload();
+      } else {
+        $('.ed-login-fehler', f).hidden = false;
+        f.pass.select();
+      }
+    });
+    return;
+  }
+  if (DEMO) {
+    const ab = $('[data-abmelden]');
+    if (ab) {
+      ab.hidden = false;
+      ab.addEventListener('click', () => {
+        try { sessionStorage.removeItem(LOGIN_KEY); sessionStorage.removeItem(DEMO_KEY); } catch {}
+        location.href = location.pathname;
+      });
+    }
+  }
 
   // =========================================================================
   // Bereiche (Menü links)
@@ -47,7 +98,7 @@
     kontakt_freigegeben: 'Telefon/E-Mail veröffentlichen (Einverständnis der Person liegt vor)', kinder_jugend: 'Im Kinder- und Jugendtraining tätig (erscheint auf der Seite „Kinder & Jugend“)',
     eintraege: 'Einträge (neueste oben)', text: 'Text', alben: 'Alben', jahr: 'Jahr', bilder: 'Bilder', bild: 'Bild', fragen: 'Fragen', frage: 'Frage', antwort: 'Antwort',
     sponsoren: 'Sponsoren & Förderer', beitrag: 'Was wurde unterstützt?', url: 'Webseite', logo: 'Logo', wege: 'Wege zu helfen', icon: 'Symbol', link: 'Link', linktext: 'Linktext', einleitung: 'Einleitung',
-    mitglieder: 'Mitglieder gesamt', mitglieder_jugend: 'davon Kinder & Jugendliche', mitglieder_stand: 'Stand der Mitgliederzahlen',
+    mitglieder: 'Mitglieder gesamt', mitglieder_jugend: 'davon Kinder & Jugendliche', mitglieder_stand: 'Stand der Mitgliederzahlen', beitraege: 'Mitgliedsbeiträge pro Jahr (erscheinen auf Startseite und Satzungsseite)', betrag: 'Betrag in €', beitraege_stand: 'Beiträge gültig seit (Jahr)',
     hinweis_banner: 'Hinweis-Banner ganz oben auf der Startseite (leer lassen = kein Banner)',
     titelbild: 'Titelbild Startseite', links: 'Links im Fußbereich', kontaktformular: 'Formular-Adresse Kontakt (form.taxi)', gaestebuchformular: 'Formular-Adresse Gästebuch (form.taxi)',
     claim: 'Leitsatz', kurzname: 'Kurzname', abteilung: 'Abteilung', strasse: 'Straße', zusatz: 'Adresszusatz', plz: 'PLZ', telefax: 'Telefax', anfahrt: 'Anfahrt',
@@ -74,16 +125,71 @@
   // Schnittstelle zum lokalen Server
   // =========================================================================
   const api = async (pfad, opts = {}) => {
+    if (DEMO) return demoApi(pfad, opts);
     const res = await fetch(pfad, opts);
     const data = await res.json();
     if (!res.ok) throw new Error(data.fehler || 'Fehler');
     return data;
   };
+
+  // Testversion: dieselben Aufrufe wie der lokale Server, aber aus der Momentaufnahme.
+  // Änderungen landen nur im sessionStorage dieses Fensters (null = gelöscht).
+  var DEMO_KEY = 'redaktion-demo-aenderungen';
+  let demoDaten;
+  async function demoApi(pfad, opts) {
+    demoDaten ??= await fetch(`${BASIS}/admin/daten.json`, { cache: 'no-store' }).then((r) => r.json());
+    let aend = {};
+    try { aend = JSON.parse(sessionStorage.getItem(DEMO_KEY)) || {}; } catch {}
+    const datei = (p) => (p in aend ? aend[p] : demoDaten.dateien[p]);
+    const merke = (p, text) => {
+      aend[p] = text;
+      try { sessionStorage.setItem(DEMO_KEY, JSON.stringify(aend)); } catch {}
+    };
+    const u = new URL(pfad, location.href);
+    const q = u.searchParams;
+    switch (u.pathname) {
+      case '/__api/list': {
+        const dir = q.get('dir') + '/';
+        const pfade = new Set([...Object.keys(demoDaten.dateien), ...Object.keys(aend)].filter((p) => p.startsWith(dir) && p.endsWith('.md')));
+        return [...pfade]
+          .filter((p) => datei(p) != null)
+          .map((p) => {
+            const { data } = parse(datei(p));
+            return { path: p, title: data.title || p, date: data.date || '', entwurf: !!data.entwurf };
+          })
+          .sort((a, b) => String(b.date).localeCompare(String(a.date)) || a.title.localeCompare(b.title));
+      }
+      case '/__api/read': {
+        const t = datei(q.get('path'));
+        if (t == null) throw new Error('Datei nicht gefunden');
+        return { text: t };
+      }
+      case '/__api/write': {
+        const p = q.get('path');
+        if (p.endsWith('.json')) JSON.parse(opts.body);
+        merke(p, opts.body);
+        const alt = q.get('alt');
+        if (alt && alt !== p) merke(alt, null);
+        return { ok: true };
+      }
+      case '/__api/delete':
+        merke(q.get('path'), null);
+        return { ok: true };
+      case '/__api/upload':
+        throw new Error('In der Testversion können keine Bilder oder PDFs hochgeladen werden.');
+      case '/__api/preview': {
+        const { renderMarkdown } = await import(`${BASIS}/admin/lib/markdown.mjs`);
+        return { html: renderMarkdown(opts.body).replace(/(src|href)="\/(?!\/)/g, `$1="${BASIS}/`) };
+      }
+    }
+    throw new Error('Unbekannte Anfrage');
+  }
   const lesen = (p) => api(`/__api/read?path=${encodeURIComponent(p)}`).then((d) => d.text);
   const schreiben = (p, text, alt) => api(`/__api/write?path=${encodeURIComponent(p)}${alt ? `&alt=${encodeURIComponent(alt)}` : ''}`, { method: 'POST', body: text });
   const hochladen = (file) => api(`/__api/upload?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file }).then((d) => d.url);
 
   function toast(msg, fehler = false) {
+    if (DEMO && /^Gespeichert|gelöscht/.test(msg)) msg = msg.replace(/ –.*$/, '') + ' (Testversion: nur in diesem Browserfenster, nicht veröffentlicht)';
     const t = $('.ed-toast');
     t.textContent = msg;
     t.classList.toggle('is-error', fehler);
@@ -197,7 +303,7 @@
     'beforeend',
     `<dialog id="ed-unsaved" class="form-dialog ed-dialog"><form method="dialog">
       <h2>Ungespeicherte Änderungen</h2>
-      <p>Du hast Änderungen, die noch nicht gespeichert sind. Was möchtest du tun?</p>
+      <p>Es gibt Änderungen, die noch nicht gespeichert sind. Was möchten Sie tun?</p>
       <div class="stack-actions"><button class="btn btn-primary" value="save">Speichern</button><button class="btn btn-danger" value="discard">Verwerfen</button><button class="btn btn-secondary" value="cancel">Abbrechen</button></div>
     </form></dialog>`
   );
@@ -259,7 +365,7 @@
         ${textEditor(body)}
         <div class="ed-actions">
           <button class="btn btn-primary" type="submit">Speichern</button>
-          ${pfad ? `<a class="btn btn-secondary" href="/news/${esc(pfad.split('/').pop().replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''))}/" target="_blank" data-extern>Ansehen ↗</a><button class="btn btn-danger" type="button" data-delete>Löschen</button>` : ''}
+          ${pfad ? `<a class="btn btn-secondary" href="${BASIS}/news/${esc(pfad.split('/').pop().replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''))}/" target="_blank" data-extern>Ansehen ↗</a><button class="btn btn-danger" type="button" data-delete>Löschen</button>` : ''}
         </div>
       </form>`;
     const form = $('form', main);
@@ -312,7 +418,7 @@
   // =========================================================================
   async function seitenListe() {
     const files = await api('/__api/list?dir=content/seiten');
-    main.innerHTML = `<h1>Seitentexte</h1><p class="muted">Texte der festen Seiten. Termine, Training, Vorstand usw. findest du links unter eigenen Punkten.</p>
+    main.innerHTML = `<h1>Seitentexte</h1><p class="muted">Texte der festen Seiten. Termine, Training, Vorstand usw. finden Sie links unter eigenen Punkten.</p>
       <ul class="ed-list">${files.map((f) => `<li><button type="button" data-p="${esc(f.path)}"><span class="d">${esc(f.path.split('/').pop())}</span><span>${esc(f.title)}</span><span></span></button></li>`).join('')}</ul>`;
     main.querySelector('.ed-list').addEventListener('click', (e) => {
       const b = e.target.closest('button[data-p]');
@@ -439,7 +545,7 @@
   async function jsonEditor(b) {
     const data = JSON.parse(await lesen(b.datei));
     if (b.id === 'training') trainerNamen = JSON.parse(await lesen('data/vorstand.json')).trainer.map((t) => t.name);
-    if (b.id === 'verein') linkziele = await fetch('/linkziele.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).catch(() => []);
+    if (b.id === 'verein') linkziele = await fetch(`${BASIS}/linkziele.json`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).catch(() => []);
     main.innerHTML = `<h1>${b.label}</h1>${b.info ? `<p class="muted">${b.info}</p>` : ''}<form class="ed-form"><div class="ed-root"></div>
       <div class="ed-actions"><button class="btn btn-primary" type="submit">Speichern</button></div></form>`;
     $('.ed-root', main).appendChild(feld(data, null, (v) => Object.assign(data, v)));

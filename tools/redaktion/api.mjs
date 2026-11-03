@@ -1,11 +1,9 @@
 /**
  * Lokale Redaktion – Server-Teil (nur für „npm run dev“, wird NICHT veröffentlicht).
  *
- * Warum? Die Online-Redaktion (/admin, Sveltia CMS) speichert über GitHub und
- * funktioniert dort in allen Browsern. Zum Bearbeiten direkt auf dem eigenen
- * Rechner kann Sveltia aber nur Chrome/Edge. Diese kleine Redaktion schließt die
- * Lücke: Sie läuft in jedem Browser (auch Safari) und schreibt direkt in die
- * Projektdateien.
+ * Die Redaktion (tools/redaktion/) läuft in jedem Browser und schreibt über diese
+ * Schnittstelle direkt in die Projektdateien. Online unter /admin/ läuft dieselbe
+ * Oberfläche derzeit als Testversion ohne Speichern (siehe build.mjs → baueAdminTest).
  *
  * Sicherheit: Der Vorschau-Server lauscht nur auf diesem Rechner (127.0.0.1),
  * Schreibzugriffe sind auf content/, data/ und public/media/uploads/ beschränkt.
