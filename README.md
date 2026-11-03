@@ -1,39 +1,13 @@
 # BSG Stahl Tennis – Website
 
-Website der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V. – schnell, modern, datenschutzfreundlich und **ohne Wartungsaufwand** (keine Datenbank, kein PHP, keine Plugins, keine fremden Pakete).
-
-Alle Inhalte der alten Seite sind übernommen: 115 News seit 2012, Fotoalbum, Turnierberichte, Gästebuch, Termine, Trainingsplan, Satzung, Geschichte.
-
----
-
-## Schnellstart (Mac)
-
-1. **Node.js installieren** (einmalig): <https://nodejs.org> → „LTS“.
-2. Terminal öffnen:
-   ```bash
-   cd ~/Github/tennis-website
-   npm run medien   # einmalig: Bilder & PDFs von der alten Seite holen
-   npm run dev      # Vorschau starten
-   ```
-3. Im Browser öffnen:
-   - **Website:** <http://localhost:4321>
-   - **Lokale Redaktion:** <http://localhost:4321/redaktion/> – funktioniert in **jedem Browser, auch Safari**
-
-`npm install` ist nicht nötig – es gibt keine Abhängigkeiten.
+Website - Idee der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V.
 
 ---
 
 ## Inhalte pflegen
 
-### Möglichkeit 1 – Online-Redaktion (für den Vorstand, nach Veröffentlichung)
-`https://www.bsg-tennis.de/admin/` → mit GitHub anmelden → News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten → „Veröffentlichen“. Nach ca. 1 Minute ist die Änderung online. Funktioniert in allen aktuellen Browsern (Safari, Chrome, Firefox, Edge), am besten am Computer oder Tablet.
-
-### Möglichkeit 2 – Lokale Redaktion (auf deinem Rechner)
-`npm run dev` → <http://localhost:4321/redaktion/>. Gleiche Bereiche, speichert direkt in die Projektdateien, Vorschau aktualisiert sich sofort.
-> Unter `localhost:4321/admin/` startet die Online-Redaktion im Chrome/Edge-Modus „lokales Repository“. Safari und Firefox können das technisch nicht (fehlende Dateisystem-Schnittstelle) und werden deshalb automatisch zur lokalen Redaktion umgeleitet.
-
-### Möglichkeit 3 – Dateien direkt bearbeiten
-Alles sind einfache Textdateien (siehe Aufbau unten).
+### Möglichkeit 1 – Online-Redaktion
+`https://www.bsg-tennis.de/admin/` → mit Zugangsdaten anmelden → News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten → „Veröffentlichen“. Nach ca. 1 Minute ist die Änderung online. Funktioniert in allen aktuellen Browsern (Safari, Chrome, Firefox, Edge), am besten am Computer oder Tablet.
 
 ### Wie ein News-Beitrag aussieht
 `content/news/2027-04-12-saisoneroeffnung.md`:
@@ -112,42 +86,6 @@ tennis-website/
 ├── build.mjs              Baut alles nach dist/
 └── serve.mjs              Vorschau-Server mit automatischem Neuladen
 ```
-
----
-
-## Veröffentlichen (Vorschlag)
-
-1. Projekt in ein GitHub-Repository des Vereins hochladen (kostenlos).
-2. In `public/admin/config.yml` bei `repo:` den Repository-Namen eintragen.
-3. Repository → Settings → Pages → Source: „GitHub Actions“. Ab dann baut `.github/workflows/deploy.yml` die Seite bei jeder Änderung und stündlich (Wetter) neu.
-4. Domain `bsg-tennis.de` beim bisherigen Anbieter per DNS auf GitHub Pages umstellen.
-5. Vorstandsmitglieder als Mitarbeiter ins Repository einladen – sie melden sich dann unter `/admin/` an.
-
-### Login für die Online-Redaktion (`/admin/`)
-
-Auf einer statischen Website lässt sich kein Passwort sicher hinterlegen: Alles, was im Seitencode steht, kann jeder lesen. Die Anmeldung läuft deshalb über **GitHub-Konten**:
-
-- Jede Person, die Inhalte pflegen soll, legt ein kostenloses GitHub-Konto an (Benutzername + Passwort + Bestätigung per App/SMS) und wird ins Repository eingeladen. Austritt = Einladung entfernen.
-- Alternativ ein gemeinsames Vereinskonto (z. B. „bsg-tennis-redaktion“), dessen Zugangsdaten der Vorstand weitergibt. Einfacher, aber man sieht nicht, wer was geändert hat.
-- Für den Knopf „Mit GitHub anmelden“ braucht es einmalig den kostenlosen [Sveltia CMS Authenticator](https://github.com/sveltia/sveltia-cms-auth) (ca. 15 Minuten Einrichtung, Adresse danach in `config.yml` unter `backend: base_url:` eintragen). Ohne ihn geht die Anmeldung auch per Zugangsschlüssel („Personal Access Token“) – das ist aber für Laien umständlicher.
-
-Die **lokale Redaktion** (`npm start` → `/redaktion/`) braucht keinen Login: Sie läuft nur auf dem eigenen Rechner und ist von außen nicht erreichbar.
-
-### Vorschau-/Testversion (z. B. `maik.bsg-tennis.de`)
-
-1. Eigenes GitHub-Repository anlegen und den Projektordner hochladen (z. B. mit GitHub Desktop).
-2. Settings → Pages → Source: „GitHub Actions“.
-3. Settings → Secrets and variables → Actions → **Variables**: `VORSCHAU` = `1`.
-   - Ohne eigene Adresse: `BASE_PATH` = `/tennis-website` → Seite unter `https://NAME.github.io/tennis-website/`.
-   - Mit eigener Adresse: `SITE_URL` = `https://maik.bsg-tennis.de`, unter Settings → Pages bei „Custom domain“ `maik.bsg-tennis.de` eintragen und beim Domain-Anbieter (STRATO) einen DNS-Eintrag anlegen: Subdomain `maik`, Typ **CNAME**, Ziel `NAME.github.io`.
-4. Im Vorschau-Modus zeigt jede Seite oben „Vorschau der neuen Website“, und Suchmaschinen werden komplett ausgesperrt (kein doppelter Inhalt neben der echten Seite).
-
-> Hinweis: Das Repository muss für kostenloses GitHub Pages öffentlich sein. Darin stehen nur Inhalte, die ohnehin auf der Website sichtbar sind – Kontaktdaten deshalb weiterhin nur mit Einverständnis eintragen.
-
-> Hinweis: GitHub pausiert zeitgesteuerte Abläufe, wenn ein Repository 60 Tage lang nicht geändert wurde. Jede Änderung (z. B. ein News-Beitrag) setzt das zurück; sonst unter „Actions“ einmal auf „Enable“ klicken.
-
-Alternativ läuft der Ordner `dist/` (Ergebnis von `npm run build`) auf **jedem** Webspace (z. B. ein deutscher Anbieter per FTP) – ohne PHP und Datenbank. Dann wird das Wetter nur bei jedem Hochladen aktualisiert.
-
 ---
 
 ## Browser & Geräte
