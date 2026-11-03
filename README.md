@@ -1,36 +1,16 @@
 # BSG Stahl Tennis – Website
 
-Website der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V. – schnell, modern, datenschutzfreundlich und **ohne Wartungsaufwand** (keine Datenbank, kein PHP, keine Plugins, keine fremden Pakete).
-
-Alle Inhalte der alten Seite sind übernommen: 115 News seit 2012, Fotoalbum, Turnierberichte, Gästebuch, Termine, Trainingsplan, Satzung, Geschichte.
-
----
-
-## Schnellstart (Mac)
-
-1. **Node.js installieren** (einmalig): <https://nodejs.org> → „LTS“.
-2. Terminal öffnen:
-   ```bash
-   cd ~/Github/tennis-website
-   npm run medien   # einmalig: Bilder & PDFs von der alten Seite holen
-   npm run dev      # Vorschau starten
-   ```
-3. Im Browser öffnen:
-   - **Website:** <http://localhost:4321>
-   - **Lokale Redaktion:** <http://localhost:4321/redaktion/> – funktioniert in **jedem Browser, auch Safari**
-
-`npm install` ist nicht nötig – es gibt keine Abhängigkeiten.
+Website - Idee der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V.
 
 ---
 
 ## Inhalte pflegen
 
-### Möglichkeit 1 – Lokale Redaktion (auf dem eigenen Rechner)
-`npm start` → <http://localhost:4321/redaktion/>. News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten; speichert direkt in die Projektdateien, die Vorschau aktualisiert sich sofort. Danach in GitHub Desktop „Commit“ + „Push“ → nach ca. 1 Minute online. Läuft in jedem Browser.
+### Möglichkeit 1 – Online-Redaktion
+`https://www.bsg-tennis.de/admin/` → mit Zugangsdaten anmelden → News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten → „Veröffentlichen“. Nach ca. 1 Minute ist die Änderung online. Funktioniert in allen aktuellen Browsern (Safari, Chrome, Firefox, Edge), am besten am Computer oder Tablet.
 
-### Möglichkeit 2 – Online-Redaktion `/admin/` (derzeit Testversion)
-Dieselbe Oberfläche auf der veröffentlichten Seite. **Aktuell nur zum Vorführen:** Anmeldung mit dem Test-Zugang `Bearbeiter1` / `Test1234`, Änderungen bleiben nur im jeweiligen Browserfenster und werden nicht veröffentlicht. Der Test-Zugang steht (verschlüsselt, aber nicht geheim) im Seitencode – das ist hier unkritisch, weil sich darüber nichts verändern lässt.
-Für den echten Betrieb ist eine Anmeldung mit E-Mail + Passwort über eine kleine PHP-Schnittstelle beim Webhoster vorgesehen (siehe `OFFENE-PUNKTE.md`).
+### Möglichkeit 2 – Lokale Redaktion (auf dem eigenen Rechner)
+`npm start` → <http://localhost:4321/redaktion/>. News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten; speichert direkt in die Projektdateien, die Vorschau aktualisiert sich sofort. Danach in GitHub Desktop „Commit“ + „Push“ → nach ca. 1 Minute online. Läuft in jedem Browser.
 
 ### Möglichkeit 3 – Dateien direkt bearbeiten
 Alles sind einfache Textdateien (siehe Aufbau unten).
