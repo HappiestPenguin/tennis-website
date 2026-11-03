@@ -1,0 +1,45 @@
+{
+  "mitglieder": 55,
+  "mitglieder_jugend": 16,
+  "mitglieder_stand": "2026-01-01",
+  "hinweis_banner": {
+    "text": "Winterpause: Der Spielbetrieb auf der Anlage ist seit dem 1. November eingestellt.",
+    "link": "/termine/",
+    "linktext": "Termine",
+    "bis": "2027-03-31"
+  },
+  "name": "BSG Stahl Eisenhüttenstadt e.V.",
+  "abteilung": "Abteilung Tennis",
+  "kurzname": "BSG Stahl Tennis",
+  "claim": "Tennis für jedermann – seit 1952 an der Waldstraße",
+  "beschreibung": "Die Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V.: drei Sandplätze, ein Hartplatz, Flutlicht, Vereinsheim und Training für Kinder, Jugendliche und Erwachsene.",
+  "url": "https://www.bsg-tennis.de",
+  "strasse": "Waldstraße 1a",
+  "zusatz": "Haus des Sports",
+  "plz": "15890",
+  "ort": "Eisenhüttenstadt",
+  "telefon": "+49 175 3555019",
+  "telefax": "+49 3364 296474",
+  "email": "webmaster@bsg-tennis.de",
+  "anfahrt": "Sie erreichen uns direkt über den Sportweg / Beeskower Straße oder über den Eingang Waldstraße.",
+  "kontaktformular": "https://form.taxi/s/4ksuy5a5",
+  "gaestebuchformular": "https://form.taxi/s/4ksuy5a5",
+  "plaetze": "3 Sandplätze, 1 Hartplatz",
+  "gegruendet": "1952",
+  "links": [
+    {
+      "titel": "Regeln & Tennisinfos beim TVBB",
+      "url": "https://www.tvbb.de/sport/regelwerke"
+    },
+    {
+      "titel": "Wetter für Eisenhüttenstadt",
+      "url": "https://www.wetteronline.de/wetter/eisenhuettenstadt"
+    },
+    {
+      "titel": "Verein beim Einkaufen unterstützen (Klubkasse)",
+      "url": "https://www.klubkasse.de/klub-page.html?club_id=1888"
+    }
+  ],
+  "titelbild": "/media/mediapool/122/1226796/resources/HeimGross.jpg",
+  "whatsapp_hinweis": "Mitglieder erhalten aktuelle Infos auch über die WhatsApp-Gruppe „BSG Abt. Tennis“."
+}

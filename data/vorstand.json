@@ -1,0 +1,87 @@
+{
+  "hinweis": "Kontaktdaten werden nur angezeigt, wenn „kontakt_freigegeben“ auf true steht – also nur mit Einverständnis der Person.",
+  "personen": [
+    {
+      "name": "Detlef Engel",
+      "funktion": "Abteilungsleiter",
+      "zustaendig": "Mitgliedschaft, Anlage, Platznutzung, Schlägerbespannung",
+      "telefon": "+49 175 3555019",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": true,
+      "kinder_jugend": false
+    },
+    {
+      "name": "Tom Fanter",
+      "funktion": "Stellvertretender Abteilungsleiter",
+      "zustaendig": "",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": false
+    },
+    {
+      "name": "Jörg Harwardt",
+      "funktion": "Kassenwart",
+      "zustaendig": "Beiträge und Finanzen",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": false
+    },
+    {
+      "name": "Marius Schulz",
+      "funktion": "Jugend- und Sportwart",
+      "zustaendig": "Kinder- und Jugendtraining, Punktspiele",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": false
+    }
+  ],
+  "trainer": [
+    {
+      "name": "Frank Hauwetter",
+      "funktion": "Trainer (C-Lizenz)",
+      "zustaendig": "Fördergruppe, Jugend weiblich",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": true
+    },
+    {
+      "name": "Marius Schulz",
+      "funktion": "Trainer",
+      "zustaendig": "Kindertraining, Damen",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": true
+    },
+    {
+      "name": "Eric Neumann",
+      "funktion": "Trainer",
+      "zustaendig": "Jugendtraining",
+      "telefon": "",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": false,
+      "kinder_jugend": true
+    },
+    {
+      "name": "Detlef Engel",
+      "funktion": "Trainer",
+      "zustaendig": "Kindertraining weiblich",
+      "telefon": "+49 175 3555019",
+      "email": "",
+      "foto": "",
+      "kontakt_freigegeben": true,
+      "kinder_jugend": true
+    }
+  ]
+}

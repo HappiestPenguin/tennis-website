@@ -1,0 +1,15 @@
+{
+  "name": "bsg-stahl-tennis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V. – statisch, schnell, ohne Abhängigkeiten.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "node serve.mjs",
+    "build": "node build.mjs",
+    "medien": "node scripts/medien-holen.mjs"
+  }
+}

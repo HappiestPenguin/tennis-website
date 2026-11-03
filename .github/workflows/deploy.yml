@@ -1,0 +1,56 @@
+# Baut die Website bei jeder Änderung (auch aus der Redaktion) und veröffentlicht sie auf GitHub Pages.
+name: Website veröffentlichen
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Stündlich neu bauen: aktualisiert das Wetter, verschiebt vergangene Termine
+    # und schiebt alte News automatisch ins Archiv. Kostenlos für öffentliche Repositories.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Wetter-Zwischenspeicher zwischen den Läufen behalten (falls Open-Meteo kurz nicht erreichbar ist)
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: wetter-${{ github.run_id }}
+          restore-keys: wetter-
+      # Gesteuert über Repository-Variablen (Settings → Secrets and variables → Actions → Variables):
+      #   VORSCHAU = 1                            → Testversion: Hinweisleiste, für Suchmaschinen gesperrt
+      #   SITE_URL = https://maik.bsg-tennis.de    → eigene Adresse (zusätzlich unter Settings → Pages eintragen)
+      #   BASE_PATH = /tennis-website              → nur ohne eigene Adresse, für https://NAME.github.io/tennis-website/
+      - run: node build.mjs
+        env:
+          VORSCHAU: ${{ vars.VORSCHAU }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          BASE_PATH: ${{ vars.BASE_PATH }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

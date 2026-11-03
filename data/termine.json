@@ -1,0 +1,61 @@
+{
+  "hinweis": "",
+  "termine": [
+    {
+      "datum": "2026-06-06",
+      "uhrzeit": "",
+      "titel": "Doppelturnier – offen für alle",
+      "ort": "Tennisanlage Waldstraße",
+      "beschreibung": ""
+    },
+    {
+      "datum": "2026-06-20",
+      "uhrzeit": "",
+      "titel": "Sonnenwende – Spaß unter Flutlicht",
+      "ort": "Tennisanlage Waldstraße",
+      "beschreibung": ""
+    },
+    {
+      "datum": "2026-06-27",
+      "uhrzeit": "",
+      "titel": "Kinder- und Jugendturnier",
+      "ort": "Tennisanlage Waldstraße",
+      "beschreibung": ""
+    },
+    {
+      "datum": "2026-07-18",
+      "uhrzeit": "",
+      "titel": "Damenturnier",
+      "ort": "Tennisanlage Waldstraße",
+      "beschreibung": ""
+    },
+    {
+      "datum": "2026-08-15",
+      "uhrzeit": "",
+      "titel": "Mixturnier",
+      "ort": "Tennisanlage Waldstraße",
+      "beschreibung": ""
+    },
+    {
+      "datum": "2026-09-19",
+      "uhrzeit": "",
+      "titel": "Schleifchenturnier",
+      "ort": "Tennisanlage Waldstraße",
+      "beschreibung": "Einzel- oder Schleifchenturnier"
+    },
+    {
+      "datum": "2026-12-09",
+      "uhrzeit": "",
+      "titel": "Weihnachtsfeier der Kinder und Jugendlichen",
+      "ort": "",
+      "beschreibung": ""
+    },
+    {
+      "datum": "2026-12-11",
+      "uhrzeit": "",
+      "titel": "Weihnachtsfeier mit Bowling",
+      "ort": "",
+      "beschreibung": ""
+    }
+  ]
+}

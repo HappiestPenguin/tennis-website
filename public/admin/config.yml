@@ -1,0 +1,264 @@
+# Redaktionssystem (Sveltia CMS, kompatibel zu Decap CMS)
+# ---------------------------------------------------------------
+# Vor dem ersten Einsatz anpassen: "repo" = GitHub-Konto/Repository-Name
+# Lokal testen: npm run dev → http://localhost:4321/admin/ → „Mit lokalem Repository arbeiten“
+#               (funktioniert in Chrome, Edge oder Brave)
+
+backend:
+  name: github
+  repo: BSG-Stahl-Tennis/website   # ← anpassen
+  branch: main
+  commit_messages:
+    create: 'Neu: {{collection}} „{{slug}}“'
+    update: 'Geändert: {{collection}} „{{slug}}“'
+    delete: 'Gelöscht: {{collection}} „{{slug}}“'
+    uploadMedia: 'Bild hochgeladen: {{path}}'
+    deleteMedia: 'Bild gelöscht: {{path}}'
+
+locale: de
+site_url: https://www.bsg-tennis.de
+display_url: https://www.bsg-tennis.de
+logo_url: /favicon.svg
+media_folder: public/media/uploads
+public_folder: /media/uploads
+
+collections:
+  # ---------------- News ----------------
+  - name: news
+    label: News
+    label_singular: News-Beitrag
+    description: Neuigkeiten, Turnierberichte, Einladungen. Neue Beiträge erscheinen automatisch auf der Startseite; Beiträge älter als 8 Jahre wandern von selbst ins Archiv.
+    folder: content/news
+    create: true
+    delete: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    summary: '{{date}} – {{title}}'
+    sortable_fields: [date, title]
+    fields:
+      - { label: Überschrift, name: title, widget: string }
+      - { label: Datum, name: date, widget: datetime, format: 'YYYY-MM-DD', time_format: false, picker_utc: true }
+      - { label: Titelbild (optional), name: bild, widget: image, required: false, hint: 'Erscheint in der News-Übersicht. Ohne Bild wird das erste Bild im Text verwendet.' }
+      - { label: Kurztext (optional), name: kurztext, widget: string, required: false, hint: 'Ein Satz für die Übersicht. Leer lassen = automatisch aus dem Text.' }
+      - { label: Entwurf (noch nicht veröffentlichen), name: entwurf, widget: boolean, default: false, required: false }
+      - { label: Fotos im Fotoalbum zeigen (ab 3 Fotos), name: album, widget: boolean, default: true, required: false }
+      - { label: 'Datum nur ungefähr (nur für übernommene Altbeiträge)', name: ungefaehr, widget: boolean, default: false, required: false, hint: 'Bei neuen Beiträgen immer aus lassen.' }
+      - { label: Text, name: body, widget: markdown, hint: 'Mehrere Bilder direkt hintereinander (ohne Text dazwischen) werden automatisch als Bildergalerie angezeigt.' }
+
+  # ---------------- Termine & Training ----------------
+  - name: kalender
+    label: Termine & Training
+    files:
+      - name: termine
+        label: Termine
+        file: data/termine.json
+        format: json
+        fields:
+          - { label: Hinweis unter den Terminen, name: hinweis, widget: text, required: false }
+          - label: Termine
+            name: termine
+            widget: list
+            summary: '{{fields.datum}} – {{fields.titel}}'
+            fields:
+              - { label: Datum, name: datum, widget: datetime, format: 'YYYY-MM-DD', time_format: false, picker_utc: true }
+              - { label: Uhrzeit (z. B. 14:00), name: uhrzeit, widget: string, required: false }
+              - { label: Titel, name: titel, widget: string }
+              - { label: Ort, name: ort, widget: string, required: false, default: 'Tennisanlage Waldstraße' }
+              - { label: Beschreibung, name: beschreibung, widget: text, required: false }
+      - name: training
+        label: Platzbelegung / Trainingszeiten
+        file: data/training.json
+        format: json
+        fields:
+          - { label: Überschrift, name: titel, widget: string }
+          - { label: Hinweise, name: hinweise, widget: list, field: { label: Hinweis, name: hinweis, widget: text } }
+          - label: Trainingszeiten
+            name: zeiten
+            widget: list
+            summary: '{{fields.tag}} {{fields.von}}–{{fields.bis}}: {{fields.gruppe}}'
+            hint: 'Die Reihenfolge ist egal – auf der Website wird automatisch nach Wochentag und Uhrzeit sortiert.'
+            fields:
+              - { label: Wochentag, name: tag, widget: select, options: [Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag] }
+              - { label: Von, name: von, widget: datetime, date_format: false, time_format: 'HH:mm', format: 'HH:mm', required: false, hint: 'leer = ganztags' }
+              - { label: Bis, name: bis, widget: datetime, date_format: false, time_format: 'HH:mm', format: 'HH:mm', required: false }
+              - { label: Gruppe, name: gruppe, widget: string }
+              - { label: Leitung (Trainer), name: leitung, widget: relation, collection: verein, file: vorstand, search_fields: ['trainer.*.name'], value_field: 'trainer.*.name', display_fields: ['trainer.*.name'], required: false }
+              - { label: Leitung (andere Person), name: leitung_frei, widget: string, required: false, hint: 'Nur ausfüllen, wenn die Person nicht in der Trainerliste steht.' }
+              - { label: Plätze, name: plaetze, widget: number, value_type: int, min: 0, max: 4, default: 1, hint: '0 = Anlage nicht verfügbar (z. B. Ligaspiele), 4 = alle Plätze' }
+              - { label: Hinweis, name: hinweis, widget: string, required: false, hint: 'z. B. „ggf. anmelden“' }
+
+  # ---------------- Verein ----------------
+  - name: verein
+    label: Verein & Kontakt
+    files:
+      - name: verein
+        label: Vereinsdaten (Adresse, Mitgliederzahlen …)
+        file: data/verein.json
+        format: json
+        fields:
+          - { label: Mitglieder gesamt, name: mitglieder, widget: number, value_type: int }
+          - { label: davon Kinder & Jugendliche, name: mitglieder_jugend, widget: number, value_type: int }
+          - { label: Stand der Mitgliederzahlen, name: mitglieder_stand, widget: datetime, format: 'YYYY-MM-DD', time_format: false, picker_utc: true }
+          - label: Hinweis-Banner auf der Startseite
+            name: hinweis_banner
+            widget: object
+            collapsed: true
+            hint: 'Für kurzfristige Hinweise (z. B. „Plätze wegen Regen gesperrt“). Text leer lassen = kein Banner.'
+            fields:
+              - { label: Text, name: text, widget: string, required: false }
+              - label: Link (optional)
+                name: link
+                widget: select
+                required: false
+                hint: 'Nur vorhandene Seiten wählbar. Für einen bestimmten News-Beitrag die lokale Redaktion nutzen.'
+                options:
+                  - { label: 'News', value: '/news/' }
+                  - { label: 'Termine', value: '/termine/' }
+                  - { label: 'Kalender abonnieren', value: '/termine/#abo' }
+                  - { label: 'Training & Mitgliedschaft', value: '/angebote/' }
+                  - { label: 'Trainingszeiten (Wochenplan)', value: '/angebote/#training' }
+                  - { label: 'Mitglied werden', value: '/angebote/#mitglied-werden' }
+                  - { label: 'Vorstand & Ansprechpartner', value: '/vorstand/' }
+                  - { label: 'Kinder & Jugend', value: '/jugend/' }
+                  - { label: 'Satzung & Beiträge', value: '/satzung/' }
+                  - { label: 'Unterstützer & Spenden', value: '/unterstuetzen/' }
+                  - { label: 'Gästebuch', value: '/gaestebuch/' }
+                  - { label: 'Fotos', value: '/fotoalbum/' }
+                  - { label: 'Kontakt', value: '/kontakt/' }
+                  - { label: 'Kontakt: Probetraining anfragen', value: '/kontakt/?anliegen=probetraining' }
+              - { label: Linktext, name: linktext, widget: string, required: false, hint: 'Leer = „Mehr erfahren“' }
+              - { label: Anzeigen bis (optional), name: bis, widget: datetime, format: 'YYYY-MM-DD', time_format: false, picker_utc: true, required: false }
+          - { label: Vereinsname, name: name, widget: string }
+          - { label: Abteilung, name: abteilung, widget: string }
+          - { label: Kurzname, name: kurzname, widget: string }
+          - { label: Leitsatz, name: claim, widget: string }
+          - { label: Beschreibung (für Suchmaschinen), name: beschreibung, widget: text }
+          - { label: Website-Adresse, name: url, widget: string }
+          - { label: Straße, name: strasse, widget: string }
+          - { label: Adresszusatz, name: zusatz, widget: string }
+          - { label: PLZ, name: plz, widget: string }
+          - { label: Ort, name: ort, widget: string }
+          - { label: Telefon, name: telefon, widget: string }
+          - { label: Telefax, name: telefax, widget: string, required: false }
+          - { label: E-Mail, name: email, widget: string }
+          - { label: Anfahrt, name: anfahrt, widget: text }
+          - { label: Formular-Adresse Kontakt (form.taxi), name: kontaktformular, widget: string }
+          - { label: Formular-Adresse Gästebuch (form.taxi), name: gaestebuchformular, widget: string }
+          - { label: Plätze, name: plaetze, widget: string }
+          - { label: Tennis seit, name: gegruendet, widget: string }
+          - { label: Titelbild Startseite, name: titelbild, widget: image }
+          - { label: WhatsApp-Hinweis, name: whatsapp_hinweis, widget: string, required: false }
+          - label: Links im Fußbereich
+            name: links
+            widget: list
+            fields:
+              - { label: Titel, name: titel, widget: string }
+              - { label: Adresse, name: url, widget: string }
+      - name: vorstand
+        label: Vorstand & Trainer
+        file: data/vorstand.json
+        format: json
+        fields:
+          - { label: Hinweis, name: hinweis, widget: hidden }
+          - label: Vorstand
+            name: personen
+            widget: list
+            fields: &person
+              - { label: Name, name: name, widget: string }
+              - { label: Funktion, name: funktion, widget: string }
+              - { label: Ansprechpartner für, name: zustaendig, widget: string, required: false }
+              - { label: Telefon, name: telefon, widget: string, required: false }
+              - { label: E-Mail, name: email, widget: string, required: false }
+              - { label: Foto, name: foto, widget: image, required: false }
+              - { label: 'Telefon/E-Mail veröffentlichen (nur mit Einverständnis der Person!)', name: kontakt_freigegeben, widget: boolean, default: false }
+              - { label: 'Im Kinder- und Jugendtraining tätig', name: kinder_jugend, widget: boolean, default: false, required: false }
+          - label: Trainer
+            name: trainer
+            widget: list
+            fields: *person
+      - name: unterstuetzer
+        label: Unterstützer & Spenden
+        file: data/unterstuetzer.json
+        format: json
+        fields:
+          - { label: Einleitung, name: einleitung, widget: text }
+          - label: Sponsoren & Förderer
+            name: sponsoren
+            widget: list
+            summary: '{{fields.name}}'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: 'Was wurde unterstützt?', name: beitrag, widget: string }
+              - { label: Webseite, name: url, widget: string, required: false }
+              - { label: Logo, name: logo, widget: image, required: false }
+          - label: Wege zu helfen
+            name: wege
+            widget: list
+            summary: '{{fields.titel}}'
+            fields:
+              - { label: Symbol, name: icon, widget: select, options: [bag, gift, shirt, tool, heart] }
+              - { label: Titel, name: titel, widget: string }
+              - { label: Text, name: text, widget: text }
+              - { label: Link, name: link, widget: string }
+              - { label: Linktext, name: linktext, widget: string }
+      - name: faq
+        label: Häufige Fragen
+        file: data/faq.json
+        format: json
+        fields:
+          - label: Fragen
+            name: fragen
+            widget: list
+            summary: '{{fields.frage}}'
+            fields:
+              - { label: Frage, name: frage, widget: string }
+              - { label: Antwort, name: antwort, widget: text }
+      - name: gaestebuch
+        label: Gästebuch-Einträge
+        file: data/gaestebuch.json
+        format: json
+        fields:
+          - label: Einträge (neueste zuerst)
+            name: eintraege
+            widget: list
+            summary: '{{fields.datum}} – {{fields.name}}'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: Ort, name: ort, widget: string, required: false }
+              - { label: Datum, name: datum, widget: datetime, format: 'YYYY-MM-DD', time_format: false, picker_utc: true }
+              - { label: Text, name: text, widget: text }
+      - name: galerie
+        label: Fotoalbum
+        file: data/galerie.json
+        format: json
+        fields:
+          - label: Alben (neueste zuerst)
+            name: alben
+            widget: list
+            summary: '{{fields.titel}}'
+            fields:
+              - { label: Albumtitel, name: titel, widget: string }
+              - { label: Jahr, name: jahr, widget: string, required: false }
+              - label: Bilder
+                name: bilder
+                widget: list
+                fields:
+                  - { label: Bild, name: bild, widget: image }
+                  - { label: Bildunterschrift, name: text, widget: string, required: false }
+            hint: 'Zusätzlich wird jeder News-Beitrag mit mindestens 3 Fotos automatisch als Album angezeigt.'
+
+  # ---------------- Seiten ----------------
+  - name: seiten
+    label: Seiten
+    files:
+      - { name: startseite, label: Startseite (Begrüßungstext), file: content/seiten/startseite.md, fields: &seite [ { label: Titel, name: title, widget: string }, { label: Beschreibung (für Suchmaschinen), name: beschreibung, widget: string, required: false }, { label: Inhalt, name: body, widget: markdown } ] }
+      - { name: angebote, label: Training & Mitgliedschaft, file: content/seiten/angebote.md, fields: *seite }
+      - { name: satzung, label: Satzung & Beiträge, file: content/seiten/satzung.md, fields: *seite }
+      - { name: jugend, label: Kinder & Jugend, file: content/seiten/jugend.md, fields: *seite }
+      - { name: vorstand_text, label: Vorstand (Text), file: content/seiten/vorstand.md, fields: *seite }
+      - { name: geschichte, label: Geschichte, file: content/seiten/geschichte.md, fields: *seite }
+      - { name: kontakt, label: Kontakt (Text), file: content/seiten/kontakt.md, fields: *seite }
+      - { name: gaestebuch_text, label: Gästebuch (Text), file: content/seiten/gaestebuch.md, fields: *seite }
+      - { name: fotoalbum_text, label: Fotoalbum (Text), file: content/seiten/fotoalbum.md, fields: *seite }
+      - { name: turnierberichte, label: Turnierberichte, file: content/seiten/turnierberichte.md, fields: *seite }
+      - { name: impressum, label: Impressum, file: content/seiten/impressum.md, fields: *seite }
+      - { name: datenschutz, label: Datenschutzerklärung, file: content/seiten/datenschutz.md, fields: *seite }
