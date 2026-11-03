@@ -306,13 +306,18 @@ const basis = () => (document.querySelector('link[rel="stylesheet"][href$="/css/
 
   // „Kalender abonnieren“ → webcal:// öffnet direkt die Kalender-App
   $$('[data-subscribe]').forEach((a) => {
-    const url = new URL(a.getAttribute('href'), location.href);
-    if (url.protocol === 'https:') a.href = url.href.replace(/^https:/, 'webcal:');
+    // document.baseURI statt location.href: funktioniert auch in der Live-Vorschau der Redaktion
+    try {
+      const url = new URL(a.getAttribute('href'), document.baseURI);
+      if (url.protocol === 'https:') a.href = url.href.replace(/^https:/, 'webcal:');
+    } catch {}
   });
   // Abo-Adresse beim Antippen kopieren
   $$('[data-copy]').forEach((input) => {
     const sub = $('[data-subscribe]');
-    if (sub && location.protocol === 'https:') input.value = new URL(sub.getAttribute('href').replace(/^webcal:/, 'https:'), location.href).href;
+    try {
+      if (sub && location.protocol === 'https:') input.value = new URL(sub.getAttribute('href').replace(/^webcal:/, 'https:'), document.baseURI).href;
+    } catch {}
     input.addEventListener('focus', () => {
       input.select();
       navigator.clipboard?.writeText(input.value).then(() => input.classList.add('is-copied')).catch(() => {});

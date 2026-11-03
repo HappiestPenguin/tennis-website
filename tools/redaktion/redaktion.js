@@ -507,6 +507,10 @@
         titelEl.textContent = neu.titel || '';
         sichtbar(!aus);
       },
+      /** Vorschau einblenden (Knopf „Vorschau“ am Handy) */
+      oeffnen() {
+        sichtbar(true);
+      },
       /** Ohne Vorschau (z. B. Anmeldeseite) */
       keine() {
         ziel = null;
@@ -527,6 +531,9 @@
       },
     };
   })();
+  main.addEventListener('click', (e) => {
+    if (e.target.closest('[data-vorschau-handy]')) vorschau.oeffnen();
+  });
   /** Wird nach jeder Änderung aufgerufen → Vorschau aktualisieren. */
   const aenderung = () => vorschau.aktualisieren();
 
@@ -692,7 +699,7 @@
   async function newsListe() {
     const files = await api('/__api/list?dir=content/news');
     main.innerHTML = `<p class="ed-pfad">Website › News</p><h1>News</h1><p class="muted">${files.length} Beiträge. Die News-Seite zeigt die letzten 8 Jahre, ältere Beiträge wandern automatisch ins Archiv.</p>
-      <div class="ed-bar"><input class="ed-search" type="search" placeholder="Suchen …" aria-label="News durchsuchen"><a class="btn btn-primary" href="#news/neu">+ Neuer Beitrag</a></div>
+      <div class="ed-bar"><input class="ed-search" type="search" placeholder="Suchen …" aria-label="News durchsuchen"><a class="btn btn-primary" href="#news/neu">+ Neuer Beitrag</a><button class="btn btn-secondary ed-nur-handy" type="button" data-vorschau-handy>Vorschau</button></div>
       <ul class="ed-list">${files
         .map((f) => `<li><button type="button" data-p="${esc(f.path)}"><span class="d">${esc(f.date)}</span><span>${esc(f.title)}</span>${f.entwurf ? '<span class="ed-tag">Entwurf</span>' : '<span></span>'}</button></li>`)
         .join('')}</ul>`;
@@ -729,8 +736,9 @@
           }
         </div>
         ${textEditor(body)}
-        <div class="ed-actions">
+        <div class="ed-actions ed-actions--fest">
           <button class="btn btn-primary" type="submit">Speichern</button>
+          <button class="btn btn-secondary ed-nur-handy" type="button" data-vorschau-handy>Vorschau</button>
           ${pfad ? '<button class="btn btn-danger" type="button" data-delete>Löschen</button>' : ''}
         </div>
       </form>`;
@@ -858,7 +866,7 @@
       }
       form.appendChild(sec);
     }
-    form.insertAdjacentHTML('beforeend', '<div class="ed-actions ed-actions--fest"><button class="btn btn-primary" type="submit">Speichern</button><span class="muted small">Änderungen sehen Sie sofort rechts in der Vorschau.</span></div>');
+    form.insertAdjacentHTML('beforeend', '<div class="ed-actions ed-actions--fest"><button class="btn btn-primary" type="submit">Speichern</button><button class="btn btn-secondary ed-nur-handy" type="button" data-vorschau-handy>Vorschau</button><span class="muted small ed-nur-gross">Änderungen sehen Sie sofort rechts in der Vorschau.</span></div>');
     requestAnimationFrame(() => wachse(form));
 
     // Klick/Fokus in einen Baustein → in der Vorschau an die passende Stelle springen
@@ -1011,7 +1019,7 @@
   function eintragTitel(item, i) {
     if (typeof item !== 'object' || !item) return String(item || `Eintrag ${i + 1}`);
     if (item.tag) return `${item.tag} ${item.von ? `${item.von}–${item.bis}` : 'ganztags'} · ${item.gruppe || 'neue Trainingszeit'}`;
-    if (item.datum && item.titel !== undefined) return `${item.datum || 'ohne Datum'} · ${item.titel || 'neuer Termin'}`;
+    if ('datum' in item && 'titel' in item) return `${item.datum || 'ohne Datum'} · ${item.titel || 'neuer Termin'}`;
     if ('gruppe' in item && 'betrag' in item) return `${item.gruppe || 'neue Gruppe'} · ${item.betrag} €`;
     if ('name' in item && ('vorstand' in item || 'trainer' in item)) return personTitel(item);
     return item.titel || item.name || item.frage || (item.text ? String(item.text).slice(0, 60) : '') || `Eintrag ${i + 1} (neu)`;
@@ -1021,8 +1029,20 @@
    * Baut rekursiv ein Formular für einen JSON-Wert.
    * set(neuerWert) schreibt Änderungen zurück ins Datenobjekt; parent ist das übergeordnete Objekt.
    */
+  /** Beschriftung + Erklärung, wenn ein Feldname je nach Datei etwas anderes bedeutet. */
+  function besonders(key, parent) {
+    if (key === 'hinweis' && parent && Array.isArray(parent.termine))
+      return ['Infobox oben auf der Seite „Termine“ (optional)', 'Erscheint als farbiger Kasten über der Terminliste, z. B. „Die Termine für 2027 folgen im Januar.“ Leer lassen = kein Kasten.'];
+    if (key === 'hinweise' && parent && Array.isArray(parent.zeiten))
+      return ['Hinweise (grüne Kästen über dem Wochenplan)', 'z. B. „Es steht immer ein Platz zum freien Spielen zur Verfügung.“'];
+    if (key === 'hinweis' && parent && 'tag' in parent) return ['Zusatz (optional)', 'Kurzer Zusatz in der Übersicht, z. B. „ggf. anmelden“'];
+    if (key === 'titel' && parent && Array.isArray(parent.zeiten)) return ['Überschrift des Wochenplans', 'z. B. „Platzbelegung 2027“ – zu Saisonbeginn anpassen.'];
+    return null;
+  }
+
   function feld(wert, key, set, parent) {
-    const label = key ? LABELS[key] || key.replace(/_/g, ' ') : '';
+    const extra = key ? besonders(key, parent) : null;
+    const label = extra ? extra[0] : key ? LABELS[key] || key.replace(/_/g, ' ') : '';
     const wrap = document.createElement('div');
 
     // ---- Objekt → Felder untereinander
@@ -1052,7 +1072,9 @@
     if (Array.isArray(wert)) {
       const kompakt = KOMPAKT.has(key) || (wert.length > 0 && wert.every((x) => typeof x !== 'object'));
       wrap.className = 'ed-field';
-      wrap.innerHTML = `<span>${esc(label)}</span><div class="ed-items${kompakt ? ' ed-items--kompakt' : ''}"></div><p><button type="button" class="btn btn-small btn-secondary" data-add>+ Hinzufügen</button></p>`;
+      // Bei längeren Listen zusätzlich oben einen „Hinzufügen“-Knopf – man muss nicht bis ans Ende scrollen
+      const obenKnopf = wert.length > 3 ? '<p class="ed-add-oben"><button type="button" class="btn btn-small btn-secondary" data-add>+ Hinzufügen</button></p>' : '';
+      wrap.innerHTML = `<span>${esc(label)}</span>${extra ? `<small>${esc(extra[1])}</small>` : ''}${obenKnopf}<div class="ed-items${kompakt ? ' ed-items--kompakt' : ''}"></div><p><button type="button" class="btn btn-small btn-secondary" data-add>+ Hinzufügen</button></p>`;
       const items = $('.ed-items', wrap);
       // offen = Indizes der aufgeklappten Einträge – bleibt beim Verschieben erhalten
       let offen = new Set();
@@ -1125,13 +1147,14 @@
         requestAnimationFrame(() => wachse(items));
       };
       render();
-      $('[data-add]', wrap).onclick = () => {
+      const hinzufuegen = (knopfOben) => {
         // Neuer Eintrag = leere Kopie des ersten Eintrags (gleiche Felder)
         const vorlage = wert[0];
         const leer = (v, k) =>
           Array.isArray(v) ? [] : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([kk, x]) => [kk, leer(x, kk)])) : typeof v === 'boolean' ? false : typeof v === 'number' ? (k === 'plaetze' ? 1 : 0) : k === 'tag' ? 'Montag' : '';
-        // Gästebuch & Alben: neueste oben – sonst unten anhängen
-        const oben = ['eintraege', 'alben'].includes(key);
+        // Gästebuch & Alben: neueste oben. Termine/Trainingszeiten (werden beim Speichern ohnehin sortiert):
+        // dort einfügen, wo der Knopf ist. Sonst unten anhängen.
+        const oben = ['eintraege', 'alben'].includes(key) || (knopfOben && ['termine', 'zeiten'].includes(key));
         const neu = vorlage !== undefined ? leer(vorlage) : '';
         merkeOffen();
         if (oben) {
@@ -1148,6 +1171,7 @@
         neuEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         neuEl?.querySelector('input, textarea, select')?.focus({ preventScroll: true });
       };
+      $$(':scope > p > [data-add]', wrap).forEach((b) => (b.onclick = () => hinzufuegen(!!b.closest('.ed-add-oben'))));
       return wrap;
     }
 
@@ -1160,7 +1184,8 @@
 
     wrap.className = 'ed-field';
     if (key) wrap.dataset.key = key; // zum gezielten Ansprechen (z. B. Linktext beim Banner automatisch füllen)
-    const hilfe = HILFE[key] && !(parent && 'von' in parent) ? `<small>${esc(HILFE[key])}</small>` : '';
+    const hilfeText = extra ? extra[1] : HILFE[key] && !(parent && 'von' in parent) ? HILFE[key] : '';
+    const hilfe = hilfeText ? `<small>${esc(hilfeText)}</small>` : '';
 
     // ---- Sonderfeld: Leitung (Trainerliste + „Andere Person“ als Freitext in leitung_frei)
     if (key === 'leitung' && parent && 'leitung_frei' in parent) {

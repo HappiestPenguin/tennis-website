@@ -167,3 +167,24 @@ textarea.ed-auto { min-height: 5.6em; overflow: hidden; resize: vertical; }
   .ed-vorschau-zeigen { bottom: 0.85rem; right: 0.9rem; }
   .ed-actions--fest .muted { display: none; }
 }
+
+/* Nichts darf breiter werden als der Bildschirm (Raster-Elemente dürfen schrumpfen, Felder auch) */
+.ed-form > *, .ed-block, .ed-field, .ed-row > *, .ed-items > * { min-width: 0; }
+.ed-field input, .ed-field select, .ed-field textarea { min-width: 0; max-width: 100%; }
+.ed-inline input { min-width: 0; }
+.ed-field input[type='date'], .ed-field input[type='time'] { -webkit-appearance: none; appearance: none; display: block; min-height: 2.9rem; }
+.ed-item > summary { min-width: 0; }
+.ed-item-title { overflow-wrap: anywhere; }
+.ed-add-oben { margin: 0 0 0.3rem; }
+.ed-nur-handy { display: none; }
+@media (max-width: 760px) {
+  html, body { overflow-x: hidden; }
+  .ed-nur-handy { display: inline-flex; }
+  .ed-nur-gross { display: none; }
+  .ed-vorschau-zeigen { display: none !important; } /* am Handy steht „Vorschau“ in der Knopfleiste */
+  .ed-actions--fest { flex-wrap: wrap; gap: 0.5rem; }
+  .ed-actions--fest .btn { flex: 1 1 auto; }
+  .ed-item { padding: 0.75rem; }
+  .ed-item > summary { gap: 0.5rem; }
+  .ed-item-tools button { width: 30px; height: 30px; }
+}
