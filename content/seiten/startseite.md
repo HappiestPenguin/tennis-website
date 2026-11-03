@@ -1,5 +1,6 @@
 ---
 title: Herzlich willkommen!
+ueberschrift: Haben Sie Spaß am Tennis?
 beschreibung: Tennis für jedermann in Eisenhüttenstadt – drei Sandplätze, ein Hartplatz, Flutlicht und ein Verein mit Wir-Gefühl.
 ---
 Auf diesen Seiten finden Sie Informationen über unseren Verein und unsere Aktivitäten.

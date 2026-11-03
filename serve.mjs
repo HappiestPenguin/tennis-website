@@ -91,6 +91,16 @@ http
     // Schnittstelle der lokalen Redaktion
     if (await api(req, res)) return;
 
+    // Seitenbau-Module für die Live-Vorschau der Redaktion (lib/*.mjs als .js, nur Lesezugriff)
+    const lib = url.match(/^\/__lib\/([a-z]+)\.js$/);
+    if (lib) {
+      const quelle = path.join(ROOT, 'lib', `${lib[1]}.mjs`);
+      if (lib[1] === 'weather' || !fs.existsSync(quelle)) return res.writeHead(404).end();
+      const code = fs.readFileSync(quelle, 'utf8').replace(/from '\.\/([\w-]+)\.mjs'/g, "from './$1.js'");
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+      return res.end(code);
+    }
+
     // Lokale Redaktion (Dateien aus tools/redaktion/)
     if (url === '/redaktion' || url.startsWith('/redaktion/')) {
       const rel = url.replace(/^\/redaktion\/?/, '') || 'index.html';

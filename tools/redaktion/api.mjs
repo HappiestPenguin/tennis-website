@@ -68,6 +68,17 @@ export function createApi(root) {
           json(res, files);
           return true;
         }
+        // Alle Inhalte auf einmal (für die Live-Vorschau der ganzen Seite)
+        case '/__api/alle': {
+          const alle = {};
+          for (const dir of ['content/news', 'content/seiten', 'data']) {
+            for (const f of fs.readdirSync(path.join(root, dir))) {
+              if (/\.(md|json)$/.test(f)) alle[`${dir}/${f}`] = fs.readFileSync(path.join(root, dir, f), 'utf8');
+            }
+          }
+          json(res, alle);
+          return true;
+        }
         case '/__api/read':
           json(res, { text: fs.readFileSync(sicher(q.get('path')), 'utf8') });
           return true;

@@ -5,15 +5,14 @@
  *   node build.mjs                    → normaler Aufruf (npm run build)
  *   BASE_PATH=/repo node build.mjs    → wenn die Seite in einem Unterordner liegt (z. B. GitHub Pages ohne eigene Domain)
  *   VORSCHAU=1 SITE_URL=https://maik.bsg-tennis.de node build.mjs
- *                                     → Test-/Vorschauversion: Hinweisleiste „Vorschau“, für Suchmaschinen gesperrt,
+ *                                     → Test-/Vorschauversion: für Suchmaschinen gesperrt,
  *                                       eigene Adresse (schreibt dazu eine CNAME-Datei für GitHub Pages)
  *
  * Ablauf:
  *   1. dist/ leeren, Dateien aus public/ (CSS, JS, Bilder …) hineinkopieren
- *   2. Inhalte und Daten einlesen (lib/content.mjs), Wetter abrufen (lib/weather.mjs)
- *   3. Alle Seiten mit den Vorlagen erzeugen (lib/pages.mjs + lib/layout.mjs)
- *   4. Bildadressen prüfen: lokal vorhanden → lokal, sonst von der alten Seite
- *   5. Kalender, RSS, Sitemap, Kontaktkarten und Weiterleitungen schreiben
+ *   2. Inhalte einlesen, Wetter abrufen (lib/weather.mjs)
+ *   3. Alle Seiten erzeugen (lib/site.mjs – derselbe Code wie die Live-Vorschau der Redaktion)
+ *   4. Kalender, RSS, Sitemap, Kontaktkarten, Weiterleitungen und die Online-Redaktion schreiben
  *
  * Es werden keine externen Pakete benötigt – nur Node.js ab Version 18.
  */
@@ -22,11 +21,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createLoader, NEWS_JAHRE } from './lib/content.mjs';
+import { renderSite } from './lib/site.mjs';
+import { NEWS_JAHRE } from './lib/content.mjs';
 import { ladeWetter } from './lib/weather.mjs';
-import { buildAlbums } from './lib/albums.mjs';
-import { layout, NAV } from './lib/layout.mjs';
-import * as P from './lib/pages.mjs';
 import * as F from './lib/feeds.mjs';
 import { slugify, heuteIso } from './lib/helpers.mjs';
 
@@ -34,9 +31,22 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, 'dist');
 const PUBLIC = path.join(ROOT, 'public');
 const BASE = (process.env.BASE_PATH || '').replace(/\/$/, '');
-const ALTE_SEITE = 'https://www.bsg-tennis.de/'; // Bilder, die noch nicht lokal liegen, kommen von hier
-const VORSCHAU = process.env.VORSCHAU === '1'; // Testversion: nicht in Suchmaschinen, mit Hinweisleiste
+const VORSCHAU = process.env.VORSCHAU === '1'; // Testversion: nicht in Suchmaschinen
 const SITE_URL = (process.env.SITE_URL || '').replace(/\/$/, ''); // abweichende Adresse, z. B. für die Vorschau
+
+/** Ordner mit bearbeitbaren Inhalten – dieselben, die die Redaktion lesen und schreiben darf. */
+export const INHALTS_ORDNER = ['content/news', 'content/seiten', 'data'];
+
+/** Alle Inhalte als { 'data/verein.json': '…', … } einlesen. */
+export function leseInhalte(root = ROOT) {
+  const files = {};
+  for (const dir of INHALTS_ORDNER) {
+    for (const f of fs.readdirSync(path.join(root, dir))) {
+      if (/\.(md|json)$/.test(f)) files[`${dir}/${f}`] = fs.readFileSync(path.join(root, dir, f), 'utf8');
+    }
+  }
+  return files;
+}
 
 export async function build({ quiet = false } = {}) {
   const t0 = Date.now();
@@ -46,98 +56,27 @@ export async function build({ quiet = false } = {}) {
   fs.mkdirSync(DIST, { recursive: true });
   copyDir(PUBLIC, DIST);
 
-  // ---- 2. Inhalte laden ---------------------------------------------------
-  const heute = heuteIso();
-  const heuteJahr = Number(heute.slice(0, 4));
-  const load = createLoader(ROOT);
-
-  const verein = load.readJson('verein');
-  if (SITE_URL) verein.url = SITE_URL;
-  verein.vorschau = VORSCHAU;
-  const vorstand = load.readJson('vorstand');
-  const training = load.readJson('training');
-  const galerie = load.readJson('galerie');
-  const faq = load.readJson('faq');
-  const unterstuetzer = load.readJson('unterstuetzer');
-  const gaestebuch = load.readJson('gaestebuch').eintraege || [];
-  const termineData = load.readJson('termine');
-  const termine = (termineData.termine || [])
-    .filter((t) => t.datum)
-    .map((t) => ({ ...t, id: `${t.datum}-${slugify(t.titel)}` }))
-    .sort((a, b) => a.datum.localeCompare(b.datum));
-
-  const posts = load.posts({ heuteJahr });
-  const aktuell = posts.filter((p) => !p.archiv);
-  const archivJahre = groupByYear(posts.filter((p) => p.archiv));
-  const alben = buildAlbums({ galerie, posts });
+  // ---- 2. Inhalte + Wetter ------------------------------------------------
+  const files = leseInhalte();
   const wetter = await ladeWetter(path.join(ROOT, '.cache'));
 
-  // ---- 3. Seiten erzeugen -------------------------------------------------
-  const pages = [];
-  /** Seite registrieren. meta = { title, description, image, type, noindex, bodyClass } */
-  const add = (url, meta, body) => {
-    const noindex = VORSCHAU || meta.noindex; // Vorschau: komplett für Suchmaschinen gesperrt
-    pages.push({ url, html: layout(verein, { url, body, ...meta, noindex }), noindex });
-  };
-
-  add('/', { title: `${verein.kurzname} – ${verein.ort}`, description: verein.beschreibung, bodyClass: 'is-home' },
-    P.home({ verein, start: load.page('startseite'), posts: aktuell.slice(0, 3), termine, heute, training, wetter, gaestebuch, unterstuetzer, alben }));
-
-  // News: Übersicht, Einzelbeiträge, Archiv
-  add('/news/', { title: 'News', description: `Neuigkeiten, Turnierberichte und Infos der ${verein.kurzname}.` }, P.newsList({ aktuell, archivJahre }));
-  posts.forEach((post, i) => {
-    add(post.url, {
-      title: post.title,
-      description: post.teaser,
-      image: post.bild,
-      type: 'article',
-      noindex: post.archiv, // alte Beiträge (oft mit Namen damals Minderjähriger) nicht in Suchmaschinen
-    }, P.newsPost({ post, prev: posts[i + 1], next: posts[i - 1] }));
+  // ---- 3. Seiten erzeugen und schreiben -----------------------------------
+  const site = renderSite({
+    files,
+    heute: heuteIso(),
+    wetter,
+    BASE,
+    SITE_URL,
+    VORSCHAU,
+    medienLokal: (rel) => fs.existsSync(path.join(PUBLIC, 'media', rel)),
   });
-  for (const a of archivJahre) {
-    add(`/news/archiv/${a.jahr}/`, { title: `News-Archiv ${a.jahr}`, description: `Neuigkeiten der ${verein.kurzname} aus dem Jahr ${a.jahr}.`, noindex: true },
-      P.archivJahr({ jahr: a.jahr, posts: a.posts, archivJahre }));
-  }
-  if (archivJahre.length) pages.push({ url: '/news/archiv/', html: F.redirect(`${BASE}/news/archiv/${archivJahre[0].jahr}/`), raw: true });
-
-  add('/termine/', { title: 'Termine', description: `Turniere, Feste und Veranstaltungen der ${verein.kurzname}.` },
-    P.termine({ termine, heute, hinweis: termineData.hinweis, verein }));
-
-  // Seiten mit Text aus content/seiten/
-  const textseiten = [
-    ['/angebote/', 'angebote', (s) => P.angebote({ s, training, faq })],
-    ['/vorstand/', 'vorstand', (s) => P.vorstand({ s, vorstand })],
-    ['/jugend/', 'jugend', (s) => P.jugend({ s, vorstand, training })],
-    ['/satzung/', 'satzung', (s) => P.contentPage({ s: { ...s, html: s.html.replace(/<p>\{\{beitraege\}\}<\/p>/, P.beitragsTabelle(verein)) }, eyebrow: 'Verein' })],
-    ['/geschichte/', 'geschichte', (s) => P.contentPage({ s, eyebrow: 'Seit 1952', cls: 'prose--timeline' })],
-    ['/turnierberichte/', 'turnierberichte', (s) => P.contentPage({ s, eyebrow: 'Archiv', toc: true }), { noindex: true }],
-    ['/fotoalbum/', 'fotoalbum', (s) => P.fotoalbum({ s, alben })],
-    ['/kontakt/', 'kontakt', (s) => P.kontakt({ s, verein, vorstand })],
-    ['/gaestebuch/', 'gaestebuch', (s) => P.gaestebuch({ s, verein, eintraege: gaestebuch })],
-    ['/impressum/', 'impressum', (s) => P.contentPage({ s, eyebrow: 'Rechtliches' })],
-    ['/datenschutz/', 'datenschutz', (s) => P.contentPage({ s, eyebrow: 'Rechtliches' })],
-  ];
-  for (const [url, name, render, extra = {}] of textseiten) {
-    const s = load.page(name);
-    add(url, { title: s.title, description: s.beschreibung, ...extra }, render(s));
-  }
-  // Einzelne Fotoalben
-  alben.forEach((a, i) => {
-    add(a.url, { title: `Fotos: ${a.titel}`, description: `${a.bilder.length} Fotos – ${a.titel}`, image: a.cover, noindex: Number(a.jahr) <= heuteJahr - NEWS_JAHRE },
-      P.albumSeite({ a, prev: alben[i - 1], next: alben[i + 1] }));
-  });
-  add('/unterstuetzen/', { title: 'Unterstützer & Spenden', description: `So können Sie die ${verein.kurzname} unterstützen – und wem wir danken.` }, P.unterstuetzen({ u: unterstuetzer }));
-  add('/danke/', { title: 'Vielen Dank!', noindex: true }, P.danke());
-  add('/404.html', { title: 'Seite nicht gefunden', noindex: true }, P.notFound());
-
-  // ---- 4. Schreiben (inkl. Bildadressen prüfen) ---------------------------
-  const stats = { lokal: 0, extern: 0 };
+  const { pages, stats, verein, vorstand, termine, posts, aktuell, alben } = site;
   for (const p of pages) {
     const file = p.url.endsWith('/') ? path.join(DIST, p.url, 'index.html') : path.join(DIST, p.url);
-    write(file, p.raw ? p.html : finalize(p.html, stats));
+    write(file, p.html);
   }
 
-  // ---- 5. Zusatzdateien ---------------------------------------------------
+  // ---- 4. Zusatzdateien ---------------------------------------------------
   for (const [alt, neu] of Object.entries(F.ALTE_ADRESSEN)) write(path.join(DIST, alt), F.redirect(BASE + neu));
   write(path.join(DIST, 'termine.ics'), F.ics({ termine, verein }));
   write(path.join(DIST, 'feed.xml'), F.rss({ posts: aktuell.slice(0, 20), verein, BASE }));
@@ -148,48 +87,33 @@ export async function build({ quiet = false } = {}) {
   );
   // Eigene Adresse für GitHub Pages (z. B. maik.bsg-tennis.de)
   if (SITE_URL && !BASE) write(path.join(DIST, 'CNAME'), new URL(SITE_URL).hostname + '\n');
-  // Online-Redaktion als Testversion unter /admin/ (Anmeldung mit Test-Zugang, speichert nichts)
-  baueAdminTest();
-
-  // Mögliche Link-Ziele für die Redaktion (z. B. Link im Hinweis-Banner) – nur öffentliche Seiten
-  const linkziele = [
-    ...NAV.flatMap((n) => (n.children ? n.children : [n])).map((n) => ({ gruppe: 'Seiten', url: n.url, titel: n.label })),
-    { gruppe: 'Abschnitte', url: '/angebote/#training', titel: 'Trainingszeiten (Wochenplan)' },
-    { gruppe: 'Abschnitte', url: '/angebote/#mitglied-werden', titel: 'Mitglied werden' },
-    { gruppe: 'Abschnitte', url: '/termine/#abo', titel: 'Kalender abonnieren' },
-    { gruppe: 'Abschnitte', url: '/kontakt/?anliegen=probetraining', titel: 'Kontakt: Probetraining anfragen' },
-    ...aktuell.slice(0, 40).map((p) => ({ gruppe: 'News', url: p.url, titel: `${p.title} (${p.date.slice(0, 4)})` })),
-  ];
-  write(path.join(DIST, 'linkziele.json'), JSON.stringify(linkziele));
+  write(path.join(DIST, 'linkziele.json'), JSON.stringify(site.linkziele));
   if (wetter) write(path.join(DIST, 'wetter.json'), JSON.stringify(wetter));
-  for (const p of [...vorstand.personen, ...vorstand.trainer]) {
-    if (p.kontakt_freigegeben && (p.telefon || p.email)) write(path.join(DIST, 'kontakte', `${slugify(p.name)}.vcf`), F.vcard(p, verein));
+  for (const p of vorstand.alle) {
+    if (!p.kontakt_freigegeben || !(p.telefon || p.email)) continue;
+    const funktion = [p.vorstand, p.trainer].filter(Boolean).join(', ') || p.funktion; // z. B. „Abteilungsleiter, Trainer“
+    write(path.join(DIST, 'kontakte', `${slugify(p.name)}.vcf`), F.vcard({ ...p, funktion }, verein));
   }
+  // Online-Redaktion als Testversion unter /admin/ (Anmeldung mit Test-Zugang, speichert nichts)
+  baueAdminTest(files);
 
   if (!quiet) {
     console.log(`✔ ${pages.length} Seiten gebaut in ${Date.now() - t0} ms  (${aktuell.length} aktuelle News, ${posts.length - aktuell.length} im Archiv, ${alben.length} Fotoalben, ${termine.length} Termine, Wetter: ${wetter ? 'ja' : 'nicht verfügbar'})`);
     if (stats.extern) console.log(`ℹ ${stats.extern} Bild-/PDF-Verweise zeigen noch auf die alte Seite → „npm run medien“ lädt sie herunter.`);
   }
   return pages.length;
+}
 
-  /**
-   * Letzter Schliff an jeder Seite:
-   *  • „/media/…“ → lokale Datei, falls vorhanden – sonst Original auf der alten Seite
-   *  • bei BASE_PATH alle internen Links um den Unterordner ergänzen
-   */
-  function finalize(html, stats) {
-    html = html.replace(/(["'(])\/media\/([^"')\s]+)/g, (m, pre, rest) => {
-      if (rest.startsWith('uploads/') || fs.existsSync(path.join(PUBLIC, 'media', safeDecode(rest)))) {
-        stats.lokal++;
-        return `${pre}${BASE}/media/${rest}`;
-      }
-      stats.extern++;
-      return `${pre}${ALTE_SEITE}${rest}`;
-    });
-    // Links ergänzen – aber nicht doppelt (Bilder haben den Unterordner oben schon bekommen)
-    if (BASE) html = html.replace(new RegExp(`(href|src|action)="/(?!/|${BASE.slice(1)}/)`, 'g'), `$1="${BASE}/`);
-    return html;
-  }
+// ---------------------------------------------------------------------------
+// Seitenbau-Module für den Browser (Live-Vorschau der Redaktion)
+// ---------------------------------------------------------------------------
+
+/** Module, die auch im Browser laufen (ohne Dateisystem). */
+export const BROWSER_MODULE = ['site', 'content', 'pages', 'components', 'layout', 'helpers', 'markdown', 'training', 'albums', 'feeds'];
+
+/** lib/<name>.mjs als .js für den Browser (Importe ebenfalls auf .js umgestellt – sicherer Dateityp auf jedem Server). */
+export function browserModul(name, root = ROOT) {
+  return fs.readFileSync(path.join(root, 'lib', `${name}.mjs`), 'utf8').replace(/from '\.\/([\w-]+)\.mjs'/g, "from './$1.js'");
 }
 
 // ---------------------------------------------------------------------------
@@ -202,23 +126,15 @@ export async function build({ quiet = false } = {}) {
  * Änderungen bleiben nur im Browserfenster. Für echtes Speichern ist eine Server-Anmeldung
  * (PHP beim Webhoster) vorgesehen – siehe OFFENE-PUNKTE.md.
  */
-function baueAdminTest() {
+function baueAdminTest(files) {
   const ziel = path.join(DIST, 'admin');
   const quelle = path.join(ROOT, 'tools/redaktion');
   fs.mkdirSync(path.join(ziel, 'lib'), { recursive: true });
   for (const f of ['redaktion.js', 'redaktion.css']) fs.copyFileSync(path.join(quelle, f), path.join(ziel, f));
-  for (const f of ['markdown.mjs', 'helpers.mjs']) fs.copyFileSync(path.join(ROOT, 'lib', f), path.join(ziel, 'lib', f));
+  for (const m of BROWSER_MODULE) write(path.join(ziel, 'lib', `${m}.js`), browserModul(m));
 
   // Momentaufnahme aller bearbeitbaren Inhalte (Entwürfe bleiben draußen – die sind nicht öffentlich)
-  const dateien = {};
-  for (const dir of ['content/news', 'content/seiten', 'data']) {
-    for (const f of fs.readdirSync(path.join(ROOT, dir))) {
-      if (!/\.(md|json)$/.test(f)) continue;
-      const text = fs.readFileSync(path.join(ROOT, dir, f), 'utf8');
-      if (/^entwurf:\s*true/m.test(text.split(/\n---/)[0] || '')) continue;
-      dateien[`${dir}/${f}`] = text;
-    }
-  }
+  const dateien = Object.fromEntries(Object.entries(files).filter(([p, text]) => !(p.startsWith('content/news/') && /^entwurf:\s*true/m.test(text.split(/\n---/)[0] || ''))));
   write(path.join(ziel, 'daten.json'), JSON.stringify({ stand: new Date().toISOString(), dateien }));
 
   const html = fs
@@ -227,7 +143,7 @@ function baueAdminTest() {
     .replace('href="/favicon.svg"', `href="${BASE}/favicon.svg"`)
     .replace('href="/css/style.css"', `href="${BASE}/css/style.css"`)
     .replace('href="/redaktion/redaktion.css"', `href="${BASE}/admin/redaktion.css"`)
-    .replace('<script defer src="/redaktion/redaktion.js"></script>', `<script>window.REDAKTION_DEMO = true; window.REDAKTION_BASIS = '${BASE}';</script>\n  <script defer src="${BASE}/admin/redaktion.js"></script>`)
+    .replace('<script defer src="/redaktion/redaktion.js"></script>', `<script>window.REDAKTION_DEMO = true; window.REDAKTION_BASIS = '${BASE}'; window.REDAKTION_LIB = '${BASE}/admin/lib';</script>\n  <script defer src="${BASE}/admin/redaktion.js"></script>`)
     .replace('href="/redaktion/">Lokale Redaktion', `href="${BASE}/admin/">Redaktion`)
     .replace(/<span class="ed-hint">[^<]*<\/span>/, '<span class="ed-hint">Testversion zum Ausprobieren: Änderungen bleiben nur in diesem Browserfenster und werden nicht veröffentlicht.</span>')
     .replace('class="btn btn-small btn-secondary" href="/"', `class="btn btn-small btn-secondary" href="${BASE}/"`);
@@ -237,24 +153,6 @@ function baueAdminTest() {
 // ---------------------------------------------------------------------------
 // Hilfsfunktionen
 // ---------------------------------------------------------------------------
-
-/** Beiträge nach Jahr gruppieren (neuestes Jahr zuerst). */
-function groupByYear(posts) {
-  const map = new Map();
-  for (const p of posts) {
-    if (!map.has(p.year)) map.set(p.year, []);
-    map.get(p.year).push(p);
-  }
-  return [...map.entries()].sort((a, b) => b[0] - a[0]).map(([jahr, list]) => ({ jahr, posts: list }));
-}
-
-function safeDecode(s) {
-  try {
-    return decodeURIComponent(s);
-  } catch {
-    return s;
-  }
-}
 
 function write(file, content) {
   fs.mkdirSync(path.dirname(file), { recursive: true });

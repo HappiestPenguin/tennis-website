@@ -14,14 +14,27 @@
 <body class="ed-body">
   <header class="ed-top">
     <a class="ed-brand" href="/redaktion/">Lokale Redaktion <span>BSG Stahl Tennis</span></a>
-    <span class="ed-hint">Änderungen werden direkt in Ihren Projektdateien gespeichert und sind sofort in der Vorschau sichtbar.</span>
+    <span class="ed-hint">Links aufgebaut wie die Website, rechts die Live-Vorschau. Gespeichert wird direkt in den Projektdateien.</span>
     <a class="btn btn-small btn-secondary" href="/" target="_blank">Website ansehen ↗</a>
     <button class="btn btn-small btn-secondary" type="button" data-abmelden hidden>Abmelden</button>
   </header>
   <div class="ed-layout">
     <nav class="ed-nav" aria-label="Bereiche"></nav>
-    <main class="ed-main" id="ed-main"><p class="muted">Bitte links einen Bereich wählen.</p></main>
+    <main class="ed-main" id="ed-main"><p class="muted">Wird geladen …</p></main>
+    <!-- Live-Vorschau: die echte Seite mit den noch nicht gespeicherten Änderungen -->
+    <aside class="ed-vorschau" aria-label="Vorschau der Seite" hidden>
+      <div class="ed-vorschau-leiste">
+        <strong>Vorschau</strong><span class="ed-vorschau-titel" data-vorschau-titel></span>
+        <span class="ed-vorschau-modi" role="group" aria-label="Ansicht">
+          <button type="button" data-modus="computer" aria-pressed="true">Computer</button><button type="button" data-modus="handy" aria-pressed="false">Handy</button>
+        </span>
+        <a class="ed-vorschau-link" data-vorschau-oeffnen href="/" target="_blank" title="Zeigt den gespeicherten Stand">Seite öffnen ↗</a>
+        <button type="button" class="ed-vorschau-zu" data-vorschau-zu title="Vorschau ausblenden" aria-label="Vorschau ausblenden">✕</button>
+      </div>
+      <div class="ed-vorschau-rahmen"><iframe title="Vorschau der Seite"></iframe></div>
+    </aside>
   </div>
+  <button class="ed-vorschau-zeigen btn btn-small btn-primary" type="button" hidden>Vorschau zeigen</button>
   <div class="ed-toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>

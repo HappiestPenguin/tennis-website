@@ -43,6 +43,7 @@ Stand: November 2026
   - Sperre nach mehreren Fehlversuchen, nur über HTTPS, Schutz gegen untergeschobene Formulare (CSRF), automatische Abmeldung
   - Jede Person hat eigene Zugangsdaten (kein Sammelpasswort); Austritt = Eintrag löschen
   - Speichern direkt auf dem Webspace → Änderung sofort online; Bilder/PDFs hochladen; automatische Sicherung vor jeder Änderung
+  - Bedienung wie jetzt: Menü wie die Website, Bausteine je Seite, Live-Vorschau der echten Seite (die Vorschau-Technik im Browser bleibt erhalten)
   - Datenschutz: unkritisch (nur E-Mail-Adressen der Redakteure, Server in Deutschland); kurz in der Datenschutzerklärung ergänzen
 - [ ] Bis dahin: Test-Zugang vor dem echten Livegang entfernen oder durch die PHP-Anmeldung ersetzen
 - [ ] **Formulare (form.taxi) – nur für die Testphase nötig**, mit der PHP-Version entfällt form.taxi. Bis dahin: Kontaktformular und Gästebuch schicken ihre Eingaben über form.taxi (Server in der EU) per E-Mail weiter. Die bisherige Formular-Adresse wurde von der alten Seite übernommen.

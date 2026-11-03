@@ -1,97 +1,89 @@
 {
-  "hinweis": "Kontaktdaten werden nur angezeigt, wenn „kontakt_freigegeben“ auf true steht – also nur mit Einverständnis der Person.",
+  "hinweis": "Jede Person steht nur einmal hier. „Funktion im Vorstand“ leer = nicht im Vorstand, „Trainer-Funktion“ leer = kein Trainer. Kontaktdaten erscheinen nur mit Häkchen bei „veröffentlichen“ (Einverständnis der Person).",
   "personen": [
     {
       "name": "Detlef Engel",
-      "funktion": "Abteilungsleiter",
+      "vorstand": "Abteilungsleiter",
       "zustaendig": "Mitgliedschaft, Anlage, Platznutzung, Schlägerbespannung",
+      "trainer": "Trainer",
+      "trainiert": "Kindertraining weiblich, Herren",
+      "kinder_jugend": true,
       "telefon": "+49 175 3555019",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": true,
-      "kinder_jugend": false
+      "kontakt_freigegeben": true
     },
     {
       "name": "Tom Fanter",
-      "funktion": "Stellvertretender Abteilungsleiter",
+      "vorstand": "Stellvertretender Abteilungsleiter",
       "zustaendig": "",
+      "trainer": "",
+      "trainiert": "",
+      "kinder_jugend": false,
       "telefon": "",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": false
+      "kontakt_freigegeben": false
     },
     {
       "name": "Jörg Harwardt",
-      "funktion": "Kassenwart",
+      "vorstand": "Kassenwart",
       "zustaendig": "Beiträge und Finanzen",
+      "trainer": "",
+      "trainiert": "",
+      "kinder_jugend": false,
       "telefon": "",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": false
+      "kontakt_freigegeben": false
     },
     {
       "name": "Marius Schulz",
-      "funktion": "Jugend- und Sportwart",
+      "vorstand": "Jugend- und Sportwart",
       "zustaendig": "Kinder- und Jugendtraining, Punktspiele",
+      "trainer": "Trainer",
+      "trainiert": "Kindertraining, Damen",
+      "kinder_jugend": true,
       "telefon": "",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": false
-    }
-  ],
-  "trainer": [
+      "kontakt_freigegeben": false
+    },
     {
       "name": "Frank Hauwetter",
-      "funktion": "Trainer (C-Lizenz)",
-      "zustaendig": "Fördergruppe, Jugend weiblich",
+      "vorstand": "",
+      "zustaendig": "",
+      "trainer": "Trainer (C-Lizenz)",
+      "trainiert": "Fördergruppe, Jugend weiblich",
+      "kinder_jugend": true,
       "telefon": "",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": true
-    },
-    {
-      "name": "Marius Schulz",
-      "funktion": "Trainer",
-      "zustaendig": "Kindertraining, Damen",
-      "telefon": "",
-      "email": "",
-      "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": true
+      "kontakt_freigegeben": false
     },
     {
       "name": "Eric Neumann",
-      "funktion": "Trainer",
-      "zustaendig": "Jugendtraining",
+      "vorstand": "",
+      "zustaendig": "",
+      "trainer": "Trainer",
+      "trainiert": "Jugendtraining",
+      "kinder_jugend": true,
       "telefon": "",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": true
-    },
-    {
-      "name": "Detlef Engel",
-      "funktion": "Trainer",
-      "zustaendig": "Kindertraining weiblich, Herren",
-      "telefon": "+49 175 3555019",
-      "email": "",
-      "foto": "",
-      "kontakt_freigegeben": true,
-      "kinder_jugend": true
+      "kontakt_freigegeben": false
     },
     {
       "name": "Hans Dudek",
-      "funktion": "Trainer",
-      "zustaendig": "Senioren AK70",
+      "vorstand": "",
+      "zustaendig": "",
+      "trainer": "Trainer",
+      "trainiert": "Senioren AK70",
+      "kinder_jugend": false,
       "telefon": "",
       "email": "",
       "foto": "",
-      "kontakt_freigegeben": false,
-      "kinder_jugend": false
+      "kontakt_freigegeben": false
     }
   ]
 }

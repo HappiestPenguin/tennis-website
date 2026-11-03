@@ -1,16 +1,38 @@
 # BSG Stahl Tennis – Website
 
-Website - Idee der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V.
+Website der Abteilung Tennis der BSG Stahl Eisenhüttenstadt e.V. – schnell, modern, datenschutzfreundlich und **ohne Wartungsaufwand** (keine Datenbank, kein PHP, keine Plugins, keine fremden Pakete).
+
+Alle Inhalte der alten Seite sind übernommen: 115 News seit 2012, Fotoalbum, Turnierberichte, Gästebuch, Termine, Trainingsplan, Satzung, Geschichte.
+
+---
+
+## Schnellstart (Mac)
+
+1. **Node.js installieren** (einmalig): <https://nodejs.org> → „LTS“.
+2. Terminal öffnen:
+   ```bash
+   cd ~/Github/tennis-website
+   npm run medien   # einmalig: Bilder & PDFs von der alten Seite holen
+   npm run dev      # Vorschau starten
+   ```
+3. Im Browser öffnen:
+   - **Website:** <http://localhost:4321>
+   - **Lokale Redaktion:** <http://localhost:4321/redaktion/> – funktioniert in **jedem Browser, auch Safari**
+
+`npm install` ist nicht nötig – es gibt keine Abhängigkeiten.
 
 ---
 
 ## Inhalte pflegen
 
-### Möglichkeit 1 – Online-Redaktion
-`https://www.bsg-tennis.de/admin/` → mit Zugangsdaten anmelden → News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten → „Veröffentlichen“. Nach ca. 1 Minute ist die Änderung online. Funktioniert in allen aktuellen Browsern (Safari, Chrome, Firefox, Edge), am besten am Computer oder Tablet.
+### Möglichkeit 1 – Lokale Redaktion (auf dem eigenen Rechner)
+`npm start` → <http://localhost:4321/redaktion/>. Speichert direkt in die Projektdateien. Danach in GitHub Desktop „Commit“ + „Push“ → nach ca. 1 Minute online. Läuft in jedem Browser.
 
-### Möglichkeit 2 – Lokale Redaktion (auf dem eigenen Rechner)
-`npm start` → <http://localhost:4321/redaktion/>. News, Termine, Trainingszeiten, Vorstand, Fotos usw. bearbeiten; speichert direkt in die Projektdateien, die Vorschau aktualisiert sich sofort. Danach in GitHub Desktop „Commit“ + „Push“ → nach ca. 1 Minute online. Läuft in jedem Browser.
+**Bedienidee:** Das Menü der Redaktion ist aufgebaut wie das Menü der Website (Startseite, News, Termine, Training & Mitgliedschaft, Verein › …). Wer auf der Website etwas ändern möchte, findet es unter demselben Namen – mit allen Bausteinen dieser Seite in derselben Reihenfolge (z. B. bei „Training & Mitgliedschaft“: Platzbelegung, Text, häufige Fragen). Rechts zeigt eine **Live-Vorschau die echte Seite** mit den noch nicht gespeicherten Änderungen (umschaltbar Computer/Handy); ein Klick in einen Baustein springt dort an die passende Stelle. Manche Angaben erscheinen auf mehreren Seiten (z. B. Beiträge auf Startseite und Satzung) – sie lassen sich an jeder dieser Stellen bearbeiten.
+
+### Möglichkeit 2 – Online-Redaktion `/admin/` (derzeit Testversion)
+Dieselbe Oberfläche auf der veröffentlichten Seite. **Aktuell nur zum Vorführen:** Anmeldung mit dem Test-Zugang `Bearbeiter1` / `Test1234`, Änderungen bleiben nur im jeweiligen Browserfenster und werden nicht veröffentlicht. Der Test-Zugang steht (verschlüsselt, aber nicht geheim) im Seitencode – das ist hier unkritisch, weil sich darüber nichts verändern lässt.
+Für den echten Betrieb ist eine Anmeldung mit E-Mail + Passwort über eine kleine PHP-Schnittstelle beim Webhoster vorgesehen (siehe `OFFENE-PUNKTE.md`).
 
 ### Möglichkeit 3 – Dateien direkt bearbeiten
 Alles sind einfache Textdateien (siehe Aufbau unten).
@@ -68,7 +90,7 @@ tennis-website/
 │   ├── verein.json        Adresse, Kontakt, Mitgliederzahlen, Links
 │   ├── termine.json       Termine
 │   ├── training.json      Platzbelegung / Trainingszeiten
-│   ├── vorstand.json      Vorstand & Trainer inkl. freigegebener Kontaktdaten
+│   ├── vorstand.json      Personen (jede nur einmal; Rollen „Vorstand“ und/oder „Trainer“) inkl. freigegebener Kontaktdaten
 │   ├── galerie.json       Fotoalben
 │   ├── gaestebuch.json    Freigegebene Gästebucheinträge
 │   ├── unterstuetzer.json Sponsoren & Wege zu helfen
@@ -77,8 +99,9 @@ tennis-website/
 │   ├── css/style.css      Gestaltung (gegliedert, kommentiert)
 │   ├── js/main.js         Komfortfunktionen (Menü, Vollbildansicht, PDF-Betrachter, Kalender …)
 │   └── media/             Bilder & PDFs (uploads/ = neue Dateien aus der Redaktion)
-├── lib/                   Der Seitengenerator
-│   ├── content.mjs        Inhalte einlesen, News-Archiv-Regel
+├── lib/                   Der Seitengenerator (läuft im Build UND im Browser für die Live-Vorschau)
+│   ├── site.mjs           Erzeugt alle Seiten aus den Inhalten
+│   ├── content.mjs        Inhalte einlesen, News-Archiv-Regel, Personen → Vorstand/Trainer
 │   ├── markdown.mjs       Markdown → HTML (Galerien, Dokument-Karten, Hinweisboxen)
 │   ├── layout.mjs         Seitengerüst, Navigation, Fußbereich
 │   ├── components.mjs     Bausteine (Karten, Terminliste, Kontaktkarte, Wetter …)
@@ -86,7 +109,7 @@ tennis-website/
 │   ├── feeds.mjs          Kalender, RSS, Sitemap, vCards, Weiterleitungen
 │   ├── weather.mjs        Wetter (datenschutzfreundlich beim Bauen)
 │   └── helpers.mjs        Datum, Symbole, Hilfsfunktionen
-├── tools/redaktion/       Lokale Redaktion (nur für npm run dev, wird nicht veröffentlicht)
+├── tools/redaktion/       Redaktion (lokal unter /redaktion/, als Testversion unter /admin/)
 ├── scripts/medien-holen.mjs  Lädt Bilder/PDFs von der alten Seite
 ├── build.mjs              Baut alles nach dist/
 └── serve.mjs              Vorschau-Server mit automatischem Neuladen

@@ -42,15 +42,10 @@
 .ed-inline { display: flex; gap: 0.5rem; }
 .ed-inline input { flex: 1; }
 
-/* Texteditor mit Vorschau */
-.ed-editor { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-@media (max-width: 1100px) { .ed-editor { grid-template-columns: 1fr; } }
+/* Texteditor */
 .ed-toolbar { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
 .ed-toolbar button { min-width: 38px; height: 36px; padding: 0 0.6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; font-size: 0.88rem; font-weight: 600; }
 .ed-toolbar button:hover { border-color: var(--green-600); }
-.ed-editor textarea { min-height: 460px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; line-height: 1.55; resize: vertical; }
-.ed-preview { padding: 1.25rem 1.5rem; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); max-height: 600px; overflow: auto; }
-.ed-preview-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; margin-bottom: 0.4rem; }
 
 /* Listen in Daten-Dateien (Termine, Trainingszeiten …) */
 .ed-items { display: grid; gap: 0.75rem; }
@@ -86,3 +81,60 @@
 .ed-login h1 { margin: 0; }
 .ed-login .muted { margin: -0.5rem 0 0.5rem; }
 .ed-login-fehler { margin: 0; color: var(--clay-600); font-weight: 600; }
+
+/* Mitwachsende Textfelder */
+textarea.ed-auto { min-height: 5.6em; overflow: hidden; resize: vertical; }
+/* Kompakte Listen (z. B. Beiträge): immer offen, Felder nebeneinander */
+.ed-items--kompakt { display: grid; gap: 0.5rem; }
+.ed-item--kompakt { display: flex; align-items: flex-end; gap: 0.75rem; padding: 0.6rem 0.75rem; }
+.ed-item--kompakt .ed-item-felder { flex: 1; margin: 0; }
+.ed-item--kompakt .ed-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.ed-item--kompakt .ed-row > .ed-field { flex: 1 1 160px; margin: 0; }
+.ed-item--kompakt .ed-item-tools { padding-bottom: 0.3rem; }
+
+/* ==========================================================================
+   Aufbau wie die Website: Menü links, Bausteine Mitte, Live-Vorschau rechts
+   ========================================================================== */
+.ed-layout.mit-vorschau { grid-template-columns: 220px minmax(420px, 1fr) minmax(360px, 46vw); }
+.ed-nav .ed-nav-unter { display: block; margin: 0.4rem 0 0.1rem 0.8rem; font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+.ed-nav .ed-nav-ein { padding-left: 1.6rem; font-size: 0.95rem; }
+.ed-pfad { margin: 0 0 0.25rem; font-size: 0.85rem; color: var(--muted); }
+.ed-pfad a { color: inherit; }
+
+/* Bausteine einer Seite */
+.ed-seite { gap: 1.25rem; }
+.ed-block { display: grid; gap: 0.9rem; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); scroll-margin-top: 80px; }
+.ed-block:focus-within { border-color: var(--clay); box-shadow: 0 0 0 3px var(--clay-100); }
+.ed-block-titel { margin: 0; font-family: var(--font); font-size: 1.05rem; font-weight: 750; }
+.ed-block-hilfe { margin: -0.5rem 0 0; color: var(--muted); font-size: 0.88rem; }
+.ed-block--auto { background: var(--paper-2); border-style: dashed; }
+.ed-block-links { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ed-block .ed-form { gap: 0.9rem; }
+.ed-mehr summary { cursor: pointer; color: var(--muted); font-size: 0.88rem; }
+.ed-mehr[open] summary { margin-bottom: 0.6rem; }
+.ed-text { min-height: 14em; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important; font-size: 15px !important; line-height: 1.55; }
+.ed-actions--fest { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 1rem; padding: 0.8rem 0; background: linear-gradient(to top, var(--paper-2) 70%, transparent); }
+
+/* Vorschau */
+.ed-vorschau { position: sticky; top: var(--ed-top, 60px); height: calc(100vh - var(--ed-top, 60px)); display: flex; flex-direction: column; border-left: 1px solid var(--line); background: #ddd6c8; }
+.ed-vorschau[hidden] { display: none; }
+.ed-vorschau-leiste { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.8rem; background: var(--surface); border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+.ed-vorschau-titel { flex: 1; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ed-vorschau-modi { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.ed-vorschau-modi button { border: 0; background: none; padding: 0.3rem 0.7rem; font: inherit; font-size: 0.82rem; cursor: pointer; color: var(--ink); }
+.ed-vorschau-modi button[aria-pressed='true'] { background: var(--green); color: #fff; }
+.ed-vorschau-link { font-size: 0.82rem; white-space: nowrap; }
+.ed-vorschau-zu { border: 0; background: none; font-size: 1rem; cursor: pointer; color: var(--muted); padding: 0.2rem 0.4rem; }
+.ed-vorschau-rahmen { position: relative; flex: 1; overflow: hidden; }
+.ed-vorschau iframe { position: absolute; top: 0; left: 0; border: 0; background: #fff; transform-origin: 0 0; box-shadow: 0 0 0 1px rgb(0 0 0 / 6%); }
+.ed-vorschau-zeigen { position: fixed; right: 1rem; bottom: 1rem; z-index: 20; box-shadow: var(--shadow-lg); }
+.ed-vorschau-zeigen[hidden] { display: none; }
+
+/* Kleinere Bildschirme: Vorschau unter den Bausteinen */
+@media (max-width: 1180px) {
+  .ed-layout.mit-vorschau { grid-template-columns: 200px minmax(0, 1fr); }
+  .ed-vorschau { grid-column: 1 / -1; position: relative; top: auto; height: 80vh; border-left: 0; border-top: 1px solid var(--line); }
+}
+@media (max-width: 760px) {
+  .ed-layout.mit-vorschau { grid-template-columns: 1fr; }
+}
