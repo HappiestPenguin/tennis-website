@@ -9,7 +9,7 @@ beschreibung: Abteilungsordnung, Satzung der BSG Stahl Eisenhüttenstadt e.V. un
 
 - [Abteilungsordnung der Abteilung Tennis (gültig ab 01.01.2023)](/media/mediapool/122/1226796/data/AbteilungsordnungTennisBSG..pdf)
 - [Satzung der BSG Stahl Eisenhüttenstadt e.V.](/media/mediapool/122/1226796/data/Satzung-aktuell.pdf)
-- [Mitgliedsantrag](/media/mediapool/122/1226796/data/Mitgliedsantrag.pdf)
+- [Aufnahmeantrag – am Computer ausfüllbar oder zum Ausdrucken](/media/dokumente/Aufnahmeantrag-BSG-Stahl-Tennis.pdf)
 
 ## Unsere Beiträge
 

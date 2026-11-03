@@ -138,3 +138,32 @@ textarea.ed-auto { min-height: 5.6em; overflow: hidden; resize: vertical; }
 @media (max-width: 760px) {
   .ed-layout.mit-vorschau { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Handy: abgespeckte Redaktion (News schreiben, Termine, Banner, Mitgliederzahlen, Gästebuch)
+   ========================================================================== */
+.ed-nav-hinweis { flex-basis: 100%; margin: 0.4rem 0 0; font-size: 0.8rem; color: var(--muted); }
+.ed-handy-hinweis { margin: 0 0 1rem; padding: 0.7rem 0.9rem; border-radius: var(--radius-sm); background: var(--clay-100); color: var(--clay-600); font-size: 0.9rem; font-weight: 600; }
+@media (max-width: 760px) {
+  .ed-top { gap: 0.5rem; padding: 0.6rem 0.9rem; }
+  .ed-brand { font-size: 1.05rem; }
+  .ed-brand span { display: none; }
+  .ed-top .btn { font-size: 0.8rem; padding: 0.35rem 0.7rem; }
+  .ed-nav { padding: 0.6rem 0.75rem; gap: 0.35rem; }
+  .ed-nav h2 { display: none; }
+  .ed-nav button { flex: 1 1 calc(50% - 0.35rem); text-align: center; padding: 0.5rem 0.4rem; font-size: 0.9rem; line-height: 1.25; }
+  .ed-nav-hinweis { font-size: 0.75rem; }
+  .ed-main { padding: 1rem 0.9rem 5rem; }
+  .ed-main h1 { font-size: 1.5rem; }
+  .ed-block { padding: 0.9rem; }
+  .ed-row { grid-template-columns: 1fr !important; }
+  .ed-list button { grid-template-columns: 1fr; gap: 0.15rem; }
+  /* Vorschau als Vollbild über allem, mit ✕ zum Schließen */
+  .ed-vorschau { position: fixed; inset: 0; z-index: 60; height: 100dvh; border: 0; }
+  .ed-vorschau-modi, .ed-vorschau-link { display: none; }
+  .ed-vorschau-zu { font-size: 1.3rem; }
+  html.ed-vorschau-vollbild, html.ed-vorschau-vollbild body { overflow: hidden; }
+  .ed-actions--fest { padding-bottom: 0.6rem; }
+  .ed-vorschau-zeigen { bottom: 0.85rem; right: 0.9rem; }
+  .ed-actions--fest .muted { display: none; }
+}

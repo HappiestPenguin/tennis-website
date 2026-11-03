@@ -111,6 +111,7 @@ tennis-website/
 │   └── helpers.mjs        Datum, Symbole, Hilfsfunktionen
 ├── tools/redaktion/       Redaktion (lokal unter /redaktion/, als Testversion unter /admin/)
 ├── scripts/medien-holen.mjs  Lädt Bilder/PDFs von der alten Seite
+├── scripts/mitgliedsantrag.py  Erzeugt den ausfüllbaren Aufnahmeantrag (PDF) aus den Vereinsdaten
 ├── build.mjs              Baut alles nach dist/
 └── serve.mjs              Vorschau-Server mit automatischem Neuladen
 ```
@@ -155,3 +156,4 @@ Getestet bzw. ausgelegt für: **Safari/iPhone/iPad ab iOS 15.4**, **Chrome, Edge
 | `npm run dev` | Vorschau + lokale Redaktion |
 | `npm run build` | Fertige Website nach `dist/` bauen |
 | `npm run medien` | Bilder/PDFs von der alten Seite nach `public/media/` laden |
+| `python3 scripts/mitgliedsantrag.py` | Aufnahmeantrag neu erzeugen (z. B. nach einer Beitragsänderung; braucht Python 3 + reportlab) |

@@ -118,6 +118,21 @@
     { id: 'datenschutz', label: 'Datenschutz' },
     { id: 'allgemein', label: 'Alle Vereinsdaten & Links' },
   ];
+  /**
+   * Am Handy nur das, was man unterwegs schnell erledigt. Ganze Seiten umbauen geht am Tablet oder
+   * Computer deutlich übersichtlicher – dort erscheint das vollständige Menü.
+   */
+  const HANDY = matchMedia('(max-width: 760px)');
+  const MENUE_HANDY = [
+    { gruppe: 'Schnell erledigt' },
+    { id: 'news-neu', label: '＋ News schreiben', hash: '#news/neu' },
+    { id: 'news', label: 'News' },
+    { id: 'termine', label: 'Termine' },
+    { id: 'schnell', label: 'Banner & Mitgliederzahlen' },
+    { id: 'gaestebuch', label: 'Gästebuch' },
+  ];
+  const HANDY_SEITEN = new Set(MENUE_HANDY.map((m) => m.id).filter(Boolean));
+
   /** Alte Adressen (#training, #faq …) weiter verstehen */
   const ALIAS = { training: 'angebote', faq: 'angebote', verein: 'allgemein', galerie: 'fotos', unterstuetzer: 'unterstuetzen', seiten: 'startseite' };
 
@@ -214,6 +229,15 @@
     },
     impressum: { url: '/impressum/', bloecke: [{ titel: 'Text der Seite', datei: md('impressum'), ziel: 'main' }] },
     datenschutz: { url: '/datenschutz/', bloecke: [{ titel: 'Text der Seite', datei: md('datenschutz'), ziel: 'main' }] },
+    schnell: {
+      label: 'Banner & Mitgliederzahlen',
+      url: '/',
+      info: 'Die zwei Dinge der Startseite, die sich am häufigsten ändern.',
+      bloecke: [
+        { titel: 'Hinweis-Banner (ganz oben)', hilfe: 'Text leer lassen = kein Banner. Mit „Anzeigen bis“ verschwindet er von selbst.', datei: V, felder: ['hinweis_banner'], ziel: '.banner' },
+        { titel: 'Mitgliederzahlen', datei: V, felder: ['mitglieder', 'mitglieder_jugend', 'mitglieder_stand'], ziel: '.facts' },
+      ],
+    },
     allgemein: {
       url: '/',
       info: 'Alle Vereinsdaten an einem Ort – dieselben Angaben, die auch bei den einzelnen Seiten stehen.',
@@ -369,8 +393,9 @@
     const zeigenBtn = $('.ed-vorschau-zeigen');
     const BREITE = { computer: 1280, handy: 390 };
     let ziel = null; // { url, titel, dateien: () => ({ Pfad: Text|null }) }
-    let modus = 'computer';
-    let aus = false;
+    let modus = HANDY.matches ? 'handy' : 'computer';
+    let aus = HANDY.matches; // am Handy erst auf Knopfdruck (dann als Vollbild)
+    $$('[data-modus]', box).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.modus === modus)));
     let site;
     let wetter;
     let timer;
@@ -403,6 +428,7 @@
       box.hidden = !an || !ziel;
       zeigenBtn.hidden = an || !ziel;
       layout.classList.toggle('mit-vorschau', !box.hidden);
+      document.documentElement.classList.toggle('ed-vorschau-vollbild', HANDY.matches && !box.hidden);
       if (an) {
         skaliere();
         zeichne();
@@ -443,7 +469,8 @@
       frame.onload = () => {
         const w = frame.contentWindow;
         if (stelle) markiere(stelle, false, erste);
-        if (anker && erste) w.document.getElementById(anker)?.scrollIntoView();
+        const ankerEl = anker && erste && w.document.getElementById(anker);
+        if (ankerEl) w.scrollTo(0, Math.max(0, ankerEl.getBoundingClientRect().top + w.scrollY - 70));
         else if (!(stelle && erste)) w.scrollTo(0, y);
         erste = false;
       };
@@ -462,7 +489,12 @@
         return;
       }
       el.classList.add('ed-markiert');
-      if (scrollen) el.scrollIntoView({ block: 'start', behavior: weich ? 'smooth' : 'auto' });
+      // Nur die Vorschau selbst scrollen – scrollIntoView würde (v. a. in Safari) auch die Redaktionsseite
+      // verschieben, sodass ein Klick nicht mehr dort ankommt, wo man hingetippt hat.
+      if (scrollen) {
+        const w = frame.contentWindow;
+        w.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + w.scrollY - 70), behavior: weich ? 'smooth' : 'auto' });
+      }
     }
 
     return {
@@ -594,16 +626,30 @@
   // Menü & Navigation
   // =========================================================================
   const nav = $('.ed-nav');
-  nav.innerHTML = MENUE.map((m) =>
-    m.gruppe
-      ? `<h2>${m.gruppe}</h2>`
-      : m.unter
-        ? `<span class="ed-nav-unter">${m.unter}</span>`
-        : `<button type="button" data-id="${m.id}"${m.ein ? ' class="ed-nav-ein"' : ''}>${m.label}</button>`
-  ).join('');
+  function zeichneMenue() {
+    const liste = HANDY.matches ? MENUE_HANDY : MENUE;
+    nav.innerHTML =
+      liste
+        .map((m) =>
+          m.gruppe
+            ? `<h2>${m.gruppe}</h2>`
+            : m.unter
+              ? `<span class="ed-nav-unter">${m.unter}</span>`
+              : `<button type="button" data-id="${m.id}"${m.hash ? ` data-hash="${m.hash}"` : ''}${m.ein ? ' class="ed-nav-ein"' : ''}>${m.label}</button>`
+        )
+        .join('') + (HANDY.matches ? '<p class="ed-nav-hinweis">Alle weiteren Seiten bearbeiten Sie am besten am Tablet oder Computer – dort ist mehr Platz für die Vorschau.</p>' : '');
+    markiereMenue();
+  }
+  function markiereMenue() {
+    const [id, arg] = location.hash.slice(1).split('/');
+    const aktiv = id === 'news' && arg === 'neu' ? 'news-neu' : ALIAS[id] || id || (HANDY.matches ? 'news' : 'startseite');
+    nav.querySelectorAll('button').forEach((x) => x.setAttribute('aria-current', String(x.dataset.id === aktiv)));
+  }
+  zeichneMenue();
+  HANDY.addEventListener?.('change', zeichneMenue);
   nav.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-id]');
-    if (btn) geheZu(`#${btn.dataset.id}`);
+    if (btn) geheZu(btn.dataset.hash || `#${btn.dataset.id}`);
   });
   document.body.insertAdjacentHTML(
     'beforeend',
@@ -624,9 +670,9 @@
     aktuellerHash = location.hash;
     setzeSpeichern(null);
     let [id, ...rest] = location.hash.slice(1).split('/');
-    id = ALIAS[id] || id || 'startseite';
+    id = ALIAS[id] || id || (HANDY.matches ? 'news' : 'startseite');
     if (id !== 'news' && !SEITEN[id]) id = 'startseite';
-    nav.querySelectorAll('button').forEach((x) => x.setAttribute('aria-current', String(x.dataset.id === id)));
+    markiereMenue();
     main.scrollTop = 0;
     window.scrollTo(0, 0);
     if (id === 'news') {
@@ -635,7 +681,10 @@
     }
     return seiteEditor(id);
   }
-  const menueLabel = (id) => MENUE.find((m) => m.id === id)?.label || id;
+  const menueLabel = (id) => MENUE.find((m) => m.id === id)?.label || SEITEN[id]?.label || id;
+  /** Hinweis, wenn am Handy eine große Seite geöffnet wird */
+  const handyHinweis = (id) =>
+    HANDY.matches && !HANDY_SEITEN.has(id) ? '<p class="ed-handy-hinweis">Diese Seite ist am Handy unübersichtlich – am besten am Tablet oder Computer bearbeiten.</p>' : '';
 
   // =========================================================================
   // News
@@ -779,7 +828,7 @@
     }
     if (dateien['data/training.json']) await ladeTrainerNamen();
 
-    main.innerHTML = `<p class="ed-pfad">Website › ${esc(label)}</p><h1>${esc(label)}</h1>${def.info ? `<p class="muted">${def.info}</p>` : ''}
+    main.innerHTML = `${handyHinweis(id)}<p class="ed-pfad">Website › ${esc(label)}</p><h1>${esc(label)}</h1>${def.info ? `<p class="muted">${def.info}</p>` : ''}
       <form class="ed-form ed-seite"></form>`;
     const form = $('form', main);
     for (const b of def.bloecke) {
@@ -814,10 +863,12 @@
 
     // Klick/Fokus in einen Baustein → in der Vorschau an die passende Stelle springen
     form.addEventListener('focusin', (e) => {
+      if (e.target.matches('a')) return;
       const blk = e.target.closest('[data-ziel]');
       if (blk) vorschau.stelle(blk.dataset.ziel);
     });
     form.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('a, button')) return; // Knöpfe (z. B. „News bearbeiten“) sollen sofort reagieren
       const blk = e.target.closest('[data-ziel]');
       if (blk) vorschau.stelle(blk.dataset.ziel);
     });

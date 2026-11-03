@@ -307,11 +307,19 @@ h3 { font-size: 1.3rem; }
 .hero-quick-link small { font-weight: 500; color: #f2b9a5; font-size: 0.8rem; }
 .hero-quick-link .icon { opacity: 0.85; }
 @media (max-width: 640px) {
-  /* Auf dem Handy eine wischbare Zeile statt mehrerer Umbrüche */
-  .hero-quick { flex-wrap: nowrap; overflow-x: auto; margin-right: -1.25rem; padding-right: 1.25rem; scrollbar-width: none; }
-  .hero-quick::-webkit-scrollbar { display: none; }
-  .hero-quick-link { flex: none; }
+  /* Auf dem Handy als sichtbares Raster (3 + 2 Kacheln) statt einer wischbaren Zeile:
+     alles auf einen Blick, nichts versteckt sich rechts außerhalb des Bildschirms */
+  .hero-quick { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.45rem; margin-top: 1.5rem; }
   .hero-quick-label { display: none; }
+  .hero-quick-link { grid-column: span 2; flex-direction: column; justify-content: center; gap: 0.25rem; padding: 0.6rem 0.3rem; border-radius: 14px; font-size: 0.82rem; text-align: center; }
+  .hero-quick-link:nth-last-child(-n + 2) { grid-column: span 3; } /* die letzten zwei Kacheln teilen sich die zweite Reihe */
+  .hero-quick-link .icon { width: 1.25rem; height: 1.25rem; }
+  .hero-quick-link small { display: none; }
+  /* Titelbild auf dem Handy kompakter, damit die Zahlen darunter schneller ins Bild kommen */
+  .hero-inner { padding: 2.25rem 0 3rem; }
+  .hero-lead { font-size: 1rem; margin-bottom: 1.4rem; }
+  .hero-actions .btn { padding-block: 0.65rem; }
+  .hero-lines { height: 40px; }
 }
 
 /* Kennzahlen direkt unter dem Titelbild */

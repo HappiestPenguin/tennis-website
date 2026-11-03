@@ -73,6 +73,13 @@ Stand: November 2026
 - [ ] **Häufige Fragen** einmal durchlesen und Antworten bestätigen
 - [ ] **Geschichte:** Fakten und Jahreszahlen gegenlesen
 
+- [ ] **Neuer Aufnahmeantrag** (`public/media/dokumente/Aufnahmeantrag-BSG-Stahl-Tennis.pdf`, am Computer ausfüllbar) gegenlesen:
+  - Beiträge, Grundlehrgang, Aufnahmegebühr und die Regel „10 Arbeitsstunden für Erwachsene, Kinder/Schüler befreit“ korrekt?
+  - Datenschutzhinweise (Seite 2): Wer bekommt die Daten (Hauptverein, Tennisverband/Sportbund)? Stimmt das so?
+  - Werden Beiträge per **Lastschrift** eingezogen? Dann fehlt noch ein SEPA-Lastschriftmandat (braucht die Gläubiger-ID des Vereins).
+  - Die Foto-Einwilligung ist neu – damit ist der Punkt „Einwilligung für Kinderfotos“ für neue Mitglieder gelöst.
+  - Neu erzeugen nach Änderungen: `python3 scripts/mitgliedsantrag.py` (liest die Beiträge aus den Vereinsdaten)
+
 ## 5. Jährliche Routine (für die Redaktion)
 
 | Wann | Was | Wo in der Redaktion |

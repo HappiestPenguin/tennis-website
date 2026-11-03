@@ -17,7 +17,7 @@ beschreibung: Platzbelegung, Trainingszeiten, Mitgliedschaft und Schlägerbespan
 
 Die Tennisanlage wird eigenverantwortlich von den Mitgliedern der Abteilung bewirtschaftet. Deshalb leistet jedes Mitglied **10 Stunden pro Jahr** zur Erhaltung der Anlage.
 
-[Zum Mitgliedsantrag (PDF)](/media/mediapool/122/1226796/data/Mitgliedsantrag.pdf)
+[Zum Aufnahmeantrag (PDF, am Computer ausfüllbar)](/media/dokumente/Aufnahmeantrag-BSG-Stahl-Tennis.pdf)
 
 ## Schlägerbespannung
 
