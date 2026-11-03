@@ -8,10 +8,8 @@ Stand: November 2026
 ## 1. Entscheidungen des Vorstands
 
 - [ ] **Annahme** der neuen Website beschließen
-- [ ] **Hosting bei STRATO** (Tendenz: alles bleibt dort, kein GitHub-Konto für den Verein). Tarif festlegen, z. B. „Hosting Starter“ (ca. 60 €/Jahr, mit PHP und SSH). Vorher auf der STRATO-Rechnung nachsehen, was der Verein heute zahlt.
-- [ ] **Technik für STRATO festlegen:** Die Seite wird heute mit Node.js gebaut. STRATO-Webhosting hat PHP, aber kein Node.js. Ohne GitHub gibt es zwei Wege:
-  - **Empfohlen: PHP-Version der Seite.** Gleiche Inhalte, gleiches Design, gleiche Dateien (News als Textdateien, Daten als JSON); die Seiten werden beim Aufruf von PHP erzeugt (mit Zwischenspeicher). Redaktion mit PHP-Anmeldung speichert direkt, Änderungen sind sofort online. Archiv, vergangene Termine und Wetter laufen automatisch weiter. Einmaliger Umbau der Technik-Schicht, kein Abo, keine Fremddienste.
-  - Alternative: Seite weiter auf einem Rechner (z. B. dem Laptop eines Admins) bauen und per SFTP zu STRATO hochladen. Wenig Umbau, aber dann hängt jede Veröffentlichung an dieser einen Person.
+- [ ] **Hosting bei STRATO** (alles bleibt dort, kein GitHub-Konto für den Verein): Tarif festlegen, z. B. „Hosting Starter“ (ca. 60 €/Jahr, mit PHP und SSH). Vorher auf der STRATO-Rechnung nachsehen, was der Verein heute zahlt.
+- [x] **Technik entschieden:** Bei Annahme wird die Seite als **PHP-Version komplett bei STRATO** betrieben – alle Änderungen sind sofort online, kein GitHub, kein Bauen auf einem Rechner. Umsetzung siehe Abschnitt 3.
 - [ ] **Wer pflegt die Seite?** Mindestens zwei Personen mit Redaktionszugang benennen.
 - [x] **Anrede einheitlich „Sie“** – auf allen Seiten umgestellt (Gästebuch-Einträge und alte Berichte bleiben wie geschrieben)
 - [ ] **Kontaktformular-Verteilung:** An welche Adresse gehen Anfragen, und wer bekommt sie weitergeleitet? (Vorschlag: `kontakt@bsg-tennis.de` mit Weiterleitung an Vorstand/Trainer; optional Kinder-Anfragen direkt an die Trainer)
@@ -34,21 +32,25 @@ Stand: November 2026
 ## 3. Technische Einrichtung
 
 - [ ] **GitHub nur für die Testphase** (Maiks Konto). Nach dem Umzug zu STRATO wird es nicht mehr gebraucht: Testprojekt dann auf „privat“ stellen oder löschen.
-- [ ] **Online-Redaktion mit echter Anmeldung (PHP)** bauen – derzeit ist `/admin/` nur eine Testversion (Zugang `Bearbeiter1` / `Test1234`, speichert nichts). Geplant:
+- [ ] **PHP-Version der Seite bauen** (nach Annahme, Hoster STRATO):
+  - Gleiches Design, gleiche Inhaltsdateien (News als Textdateien, Daten als JSON) – die vorhandenen Inhalte werden 1:1 übernommen
+  - Seiten werden beim Aufruf von PHP erzeugt (mit Zwischenspeicher, damit die Seite schnell bleibt)
+  - Automatisch wie bisher: Archiv nach 8 Jahren, vergangene Termine, Fotoalben aus Berichten, Wetter (stündlich vom Server abgerufen, keine Daten der Besucher an Dritte)
+  - Kontaktformular und Gästebuch direkt über STRATO verschicken (form.taxi entfällt)
+  - Alte Adressen weiterleiten, Kalender-Abo, RSS, Sitemap, Kontaktkarten wie bisher
+- [ ] **Online-Redaktion mit echter Anmeldung (PHP)** – ersetzt die Testversion unter `/admin/` (Zugang `Bearbeiter1` / `Test1234`):
   - Anmeldung mit **E-Mail + Passwort**, Liste der berechtigten Personen auf dem Server (Passwörter nur verschlüsselt/gehasht gespeichert, nie im Seitencode)
   - Sperre nach mehreren Fehlversuchen, nur über HTTPS, Schutz gegen untergeschobene Formulare (CSRF), automatische Abmeldung
   - Jede Person hat eigene Zugangsdaten (kein Sammelpasswort); Austritt = Eintrag löschen
-  - Speichern direkt auf dem STRATO-Webspace (zusammen mit der PHP-Version der Seite, siehe oben)
-  - Voraussetzung: Hoster mit PHP (STRATO) → nach der Hosting-Entscheidung umsetzbar
+  - Speichern direkt auf dem Webspace → Änderung sofort online; Bilder/PDFs hochladen; automatische Sicherung vor jeder Änderung
   - Datenschutz: unkritisch (nur E-Mail-Adressen der Redakteure, Server in Deutschland); kurz in der Datenschutzerklärung ergänzen
 - [ ] Bis dahin: Test-Zugang vor dem echten Livegang entfernen oder durch die PHP-Anmeldung ersetzen
-- [ ] **Formulare (form.taxi)** – Kontaktformular und Gästebuch schicken ihre Eingaben über form.taxi (Server in der EU) per E-Mail weiter. Die bisherige Formular-Adresse wurde von der alten Seite übernommen.
+- [ ] **Formulare (form.taxi) – nur für die Testphase nötig**, mit der PHP-Version entfällt form.taxi. Bis dahin: Kontaktformular und Gästebuch schicken ihre Eingaben über form.taxi (Server in der EU) per E-Mail weiter. Die bisherige Formular-Adresse wurde von der alten Seite übernommen.
   1. Klären, **wem das bestehende form.taxi-Konto gehört** und an welche Adresse es weiterleitet. Ist kein Zugang da: neues Konto mit einer Vereinsadresse anlegen (kostenloser Tarif reicht: 3 Formulare, 40 Einsendungen/Monat).
   2. Zwei Formulare anlegen (Kontakt, Gästebuch), **Empfänger** eintragen und bestätigen (z. B. `kontakt@bsg-tennis.de`, bei STRATO an die zuständigen Personen weiterleiten).
   3. Die neuen Formular-Adressen in der Redaktion unter **Vereinsdaten** eintragen.
   4. Im form.taxi-Konto den **Auftragsverarbeitungsvertrag** (Art. 28 DSGVO) abschließen und einstellen, dass gespeicherte Einsendungen nach kurzer Zeit gelöscht werden.
   5. Einmal testen: Nachricht absenden → kommt an? Gästebuch-Eintrag → kommt an?
-  - Alternative bei der PHP-Version: Formulare direkt über STRATO verschicken, dann entfällt form.taxi ganz.
 - [ ] Prüfen, ob **webmaster@bsg-tennis.de** (steht im Impressum) existiert und gelesen wird
 - [x] **Alle Bilder lokal** (geprüft: keine Verweise mehr auf die alte Seite). Bei neuen Inhalten bleibt das automatisch so.
 - [ ] **Vorschau-Modus aus:** Die echte Seite ohne `VORSCHAU` bauen (sonst bleibt sie für Google gesperrt)
@@ -87,7 +89,6 @@ Automatisch, ohne Zutun: News älter als 8 Jahre wandern ins Archiv, vergangene 
 
 ## 6. Optionale Erweiterungen (später)
 
-- [ ] Redaktion: Bilder direkt online hochladen (kommt mit der PHP-Anmeldung)
 
 - [ ] Knopf „Der WhatsApp-Community beitreten“ (+ QR-Code) und in der Redaktion „Beitrag in WhatsApp teilen“
 - [ ] Kontaktformular nach Anliegen an verschiedene Empfänger verteilen
