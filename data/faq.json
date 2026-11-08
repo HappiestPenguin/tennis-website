@@ -2,7 +2,7 @@
   "fragen": [
     {
       "frage": "Ich habe noch nie Tennis gespielt – kann ich trotzdem mitmachen?",
-      "antwort": "Ja, unbedingt! Neue Mitglieder starten mit einem Grundlehrgang über 10 Stunden bei unseren Trainern. Danach können Sie selbstständig spielen."
+      "antwort": "Ja, unbedingt! Für Einsteiger – auch Erwachsene – bieten wir einen Grundlehrgang über 10 Stunden bei unseren Trainern an. Er ist freiwillig und findet statt, sobald sich genug Teilnehmer gefunden haben. Sprechen Sie uns einfach an."
     },
     {
       "frage": "Kann ich erst einmal unverbindlich ausprobieren?",
@@ -10,7 +10,11 @@
     },
     {
       "frage": "Was kostet die Mitgliedschaft?",
-      "antwort": "Die aktuellen Jahresbeiträge stehen unter „Satzung & Beiträge“ und auf der Startseite. Dazu kommen eine einmalige Aufnahmegebühr und der Grundlehrgang. Platzgebühren gibt es für Mitglieder nicht."
+      "antwort": "Die aktuellen Jahresbeiträge stehen unter „Satzung & Beiträge“ und auf der Startseite. Dazu kommt eine einmalige Aufnahmegebühr (35 € bzw. 50 € für Erwachsene). Der Grundlehrgang für Einsteiger ist freiwillig und wird extra berechnet. Platzgebühren gibt es für Mitglieder nicht."
+    },
+    {
+      "frage": "Wie bezahle ich den Mitgliedsbeitrag?",
+      "antwort": "Per Überweisung auf das Konto der BSG Stahl, jeweils bis zum 31. März. Bankverbindung und Verwendungszweck finden Sie unter „Satzung & Beiträge“ und im Aufnahmeantrag."
     },
     {
       "frage": "Brauche ich eine eigene Ausrüstung?",
@@ -22,11 +26,11 @@
     },
     {
       "frage": "Was hat es mit den Arbeitsstunden auf sich?",
-      "antwort": "Die Anlage wird von den Mitgliedern selbst gepflegt. Deshalb leistet jedes erwachsene Mitglied 10 Arbeitsstunden pro Jahr – zum Beispiel beim Herrichten der Plätze im Frühjahr. Für Kinder und Schüler entfällt diese Pflicht."
+      "antwort": "Die Anlage wird von den Mitgliedern selbst gepflegt. Deshalb leistet jedes erwachsene Mitglied 10 Arbeitsstunden pro Jahr – zum Beispiel beim Herrichten der Plätze im Frühjahr. Wer das nicht schafft, zahlt 10 € je fehlender Stunde. Kinder und Schüler sind nicht verpflichtet; helfen sie mit, bekommen sie für bis zu 10 Stunden je 5 € vom Beitrag zurück."
     },
     {
       "frage": "Kann ich als Gast oder im Urlaub bei Ihnen spielen?",
-      "antwort": "Nach Absprache gerne. Bitte melden Sie sich vorher über das Kontaktformular."
+      "antwort": "Nach Absprache gerne. Bitte melden Sie sich vorher über das Kontaktformular. Für Gäste fällt eine Platzmiete laut Abteilungsordnung an (Hartplatz 5 € pro Stunde, Sandplatz 15 € pro Stunde unter Aufsicht eines Mitglieds; spielen Sie mit einem Mitglied, sind es auf dem Sandplatz 5 € und auf dem Hartplatz nichts)."
     }
   ]
 }

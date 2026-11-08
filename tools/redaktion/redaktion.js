@@ -15,8 +15,11 @@
  *   • Trainingszeiten: Uhrzeit-Auswahl, Plätze 0–4, Trainer aus der Personenliste
  *   • Termine und Trainingszeiten werden beim Speichern automatisch sortiert
  *
- * Zwei Betriebsarten:
+ * Drei Betriebsarten:
  *   • Lokal (npm start → /redaktion/): speichert über api.mjs direkt in die Projektdateien.
+ *   • Server (Webspace, z. B. STRATO → /admin/): Anmeldung mit E-Mail/Kennung + Passwort über
+ *     admin/api.php. Beim Speichern werden die Inhalte gesichert und die betroffenen Seiten sofort
+ *     neu erzeugt (hier im Browser, mit demselben Code wie die Vorschau) und veröffentlicht.
  *   • Testversion (/admin/ auf der veröffentlichten Seite): Anmeldung mit Test-Zugang, Inhalte
  *     kommen aus einer Momentaufnahme (admin/daten.json). Änderungen bleiben nur in diesem
  *     Browserfenster (sessionStorage) und werden NICHT veröffentlicht – gedacht zum Vorführen.
@@ -26,12 +29,13 @@
  * Die Live-Vorschau nutzt denselben Seitenbau wie die Website (lib/site.mjs, im Browser als
  * /__lib/*.js bzw. admin/lib/*.js geladen) – sie sieht also exakt so aus wie das Ergebnis.
  */
-(() => {
+(async () => {
   'use strict';
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const main = $('#ed-main');
   const DEMO = !!window.REDAKTION_DEMO; // Online-Testversion (siehe Kopfkommentar)
+  const SERVER = window.REDAKTION_MODUS === 'server'; // echte Online-Redaktion mit Anmeldung
   const BASIS = window.REDAKTION_BASIS || ''; // Unterordner der Seite, z. B. /tennis-website
   const LIB = window.REDAKTION_LIB || '/__lib'; // Seitenbau-Module für die Vorschau
   const DEMO_KEY = 'redaktion-demo-aenderungen';
@@ -54,6 +58,68 @@
   };
   const sha256 = async (text) =>
     Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))).map((b) => b.toString(16).padStart(2, '0')).join('');
+
+  // =========================================================================
+  // Server: Anmeldung über admin/api.php
+  // =========================================================================
+  const API_URL = `${BASIS}/admin/api.php`;
+  let csrf = '';
+  let ich = null; // { name, kennung, stand }
+  if (SERVER) {
+    const st = await fetch(`${API_URL}?aktion=status`, { credentials: 'same-origin', cache: 'no-store' }).then((r) => r.json()).catch(() => null);
+    if (!st) {
+      main.innerHTML = '<p class="ed-handy-hinweis">Die Redaktion ist gerade nicht erreichbar. Bitte später erneut versuchen.</p>';
+      return;
+    }
+    csrf = st.csrf;
+    if (!st.angemeldet) {
+      document.querySelector('.ed-layout').classList.add('ed-layout--login');
+      main.innerHTML = `<form class="ed-login" autocomplete="on">
+        <h1>Anmelden</h1>
+        <p class="muted">Redaktion der BSG Stahl Tennis</p>
+        <label class="ed-field"><span>E-Mail oder Benutzername</span><input name="user" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus></label>
+        <label class="ed-field"><span>Passwort</span><input name="pass" type="password" autocomplete="current-password" required></label>
+        <p class="ed-login-fehler" role="alert" hidden></p>
+        <button class="btn btn-primary" type="submit">Anmelden</button>
+      </form>`;
+      const f = $('.ed-login', main);
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const knopf = $('button', f);
+        knopf.disabled = true;
+        const res = await fetch(`${API_URL}?aktion=anmelden`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf },
+          body: JSON.stringify({ kennung: f.user.value.trim(), passwort: f.pass.value }),
+        });
+        const d = await res.json().catch(() => ({}));
+        knopf.disabled = false;
+        if (res.ok) {
+          if (d.schwach) sessionStorage.setItem('redaktion-schwach', '1');
+          location.reload();
+          return;
+        }
+        const fehlerEl = $('.ed-login-fehler', f);
+        fehlerEl.textContent = d.fehler || 'Anmeldung fehlgeschlagen.';
+        fehlerEl.hidden = false;
+        f.pass.select();
+      });
+      return;
+    }
+    ich = st;
+    // Kopfleiste: Name, Passwort ändern, Abmelden
+    const ab = $('[data-abmelden]');
+    ab.hidden = false;
+    ab.insertAdjacentHTML('beforebegin', `<span class="ed-ich">${String(st.name || st.kennung).replace(/[<>&]/g, '')}</span><button class="btn btn-small btn-secondary" type="button" data-passwort>Passwort ändern</button>`);
+    ab.addEventListener('click', async () => {
+      if (!(await fragen())) return;
+      geaendert = false;
+      await fetch(`${API_URL}?aktion=abmelden`, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF': csrf } });
+      location.reload();
+    });
+    $('[data-passwort]').addEventListener('click', () => passwortDialog());
+  }
 
   if (DEMO && !angemeldet()) {
     document.querySelector('.ed-layout').classList.add('ed-layout--login');
@@ -170,7 +236,7 @@
     angebote: {
       url: '/angebote/',
       bloecke: [
-        { titel: 'Platzbelegung & Trainingszeiten', hilfe: 'Beim Speichern werden die Zeiten nach Wochentag und Uhrzeit sortiert.', datei: 'data/training.json', ziel: '#training' },
+        { titel: 'Platzbelegung & Trainingszeiten', hilfe: 'Öffentlich sichtbar ist nur, wann wie viele Plätze belegt sind – keine Gruppen, keine Namen (Datenschutz, besonders bei Kindern). Beim Speichern wird nach Wochentag und Uhrzeit sortiert. Tage ohne Eintrag erscheinen als „Freies Spiel“.', datei: 'data/training.json', ziel: '#training' },
         { titel: 'Text der Seite (Mitgliedschaft, Schlägerbespannung …)', datei: md('angebote'), ziel: '#mitglied-werden' },
         { titel: 'Häufige Fragen', datei: 'data/faq.json', ziel: '#faq' },
       ],
@@ -192,7 +258,7 @@
       url: '/jugend/',
       bloecke: [
         { titel: 'Text der Seite (inkl. Ergebnislisten)', datei: md('jugend'), ziel: 'main' },
-        { titel: 'Trainer und Trainingszeiten (automatisch)', hilfe: 'Hier erscheinen alle Personen mit Häkchen „Im Kinder- und Jugendtraining tätig“ und die passenden Trainingszeiten.', verweis: 'vorstand', verweisText: 'Personen bearbeiten', verweis2: 'angebote', verweisText2: 'Trainingszeiten bearbeiten', ziel: '.people-grid' },
+        { titel: 'Trainer (automatisch)', hilfe: 'Hier erscheinen alle Personen mit Häkchen „Im Kinder- und Jugendtraining tätig“. Trainingszeiten der Kinder werden bewusst nicht veröffentlicht – Eltern melden sich beim Abteilungsleiter oder über das Kontaktformular.', verweis: 'vorstand', verweisText: 'Personen bearbeiten', verweis2: 'angebote', verweisText2: 'Trainingszeiten bearbeiten', ziel: '.people-grid' },
       ],
     },
     satzung: {
@@ -200,6 +266,7 @@
       bloecke: [
         { titel: 'Text der Seite', hilfe: 'Die Beitragstabelle steht im Text als Platzhalter {{beitraege}} und wird automatisch gefüllt.', datei: md('satzung'), ziel: 'main' },
         { titel: 'Mitgliedsbeiträge', datei: V, felder: ['beitraege', 'beitraege_stand'], ziel: '.table-wrap' },
+        { titel: 'Bankverbindung für die Beitragsüberweisung', hilfe: 'Erscheint unter „Beitrag überweisen“ und im Aufnahmeantrag (PDF wird separat neu erzeugt).', datei: V, felder: ['bank'], ziel: '.bank' },
       ],
     },
     unterstuetzen: { url: '/unterstuetzen/', bloecke: [{ titel: 'Unterstützer & Spenden', datei: 'data/unterstuetzer.json', ziel: 'main' }] },
@@ -248,13 +315,13 @@
   /** Verständliche Feldnamen für die JSON-Dateien. */
   const LABELS = {
     titel: 'Titel', datum: 'Datum', uhrzeit: 'Uhrzeit', ort: 'Ort', beschreibung: 'Beschreibung', hinweis: 'Hinweis', hinweise: 'Hinweise',
-    termine: 'Termine', zeiten: 'Trainingszeiten', tag: 'Wochentag', von: 'Von', bis: 'Bis', gruppe: 'Gruppe', leitung: 'Leitung', plaetze: 'Plätze',
+    termine: 'Termine', zeiten: 'Belegungszeiten', tag: 'Wochentag', von: 'Von', bis: 'Bis', art: 'Belegung', gruppe: 'Gruppe', leitung: 'Leitung', plaetze: 'Plätze',
     personen: 'Personen', name: 'Name', funktion: 'Funktion', zustaendig: 'Ansprechpartner für (im Vorstand)', telefon: 'Telefon', email: 'E-Mail', foto: 'Foto',
     vorstand: 'Funktion im Vorstand (leer = nicht im Vorstand)', trainer: 'Trainer-Funktion (leer = kein Trainer)', trainiert: 'Trainiert (Gruppen)',
     kontakt_freigegeben: 'Telefon/E-Mail veröffentlichen (Einverständnis der Person liegt vor)', kinder_jugend: 'Im Kinder- und Jugendtraining tätig (erscheint auf „Kinder & Jugend“)',
     eintraege: 'Einträge (neueste oben)', text: 'Text', alben: 'Alben', jahr: 'Jahr', bilder: 'Bilder', bild: 'Bild', fragen: 'Fragen', frage: 'Frage', antwort: 'Antwort',
     sponsoren: 'Sponsoren & Förderer', beitrag: 'Was wurde unterstützt?', url: 'Webseite', logo: 'Logo', wege: 'Wege zu helfen', icon: 'Symbol', link: 'Link', linktext: 'Linktext', einleitung: 'Einleitung',
-    mitglieder: 'Mitglieder gesamt', mitglieder_jugend: 'davon Kinder & Jugendliche', mitglieder_stand: 'Stand der Mitgliederzahlen', beitraege: 'Mitgliedsbeiträge pro Jahr', betrag: 'Betrag in €', beitraege_stand: 'Beiträge gültig seit (Jahr)',
+    mitglieder: 'Mitglieder gesamt', mitglieder_jugend: 'davon Kinder & Jugendliche', mitglieder_stand: 'Stand der Mitgliederzahlen', beitraege: 'Mitgliedsbeiträge pro Jahr', betrag: 'Betrag in €', beitraege_stand: 'Beiträge gültig seit (Jahr)', bank: 'Bankverbindung', empfaenger: 'Empfänger (Kontoinhaber)', iban: 'IBAN', bic: 'BIC', kreditinstitut: 'Bank', verwendungszweck: 'Verwendungszweck',
     hinweis_banner: 'Hinweis-Banner', start_titel: 'Überschrift (erste Zeile)', start_titel_2: 'Überschrift (zweite Zeile, farbig)', start_text: 'Text unter der Überschrift',
     titelbild: 'Titelbild', links: 'Links im Fußbereich', kontaktformular: 'Formular-Adresse Kontakt (form.taxi)', gaestebuchformular: 'Formular-Adresse Gästebuch (form.taxi)',
     claim: 'Leitsatz', kurzname: 'Kurzname', abteilung: 'Abteilung', strasse: 'Straße', zusatz: 'Adresszusatz', plz: 'PLZ', telefax: 'Telefax', anfahrt: 'Anfahrt',
@@ -270,9 +337,10 @@
   const LANG = /^(beschreibung|antwort|einleitung|anfahrt|beitrag|start_text)$/; // mehrzeilige Felder („text“ siehe unten)
   const BILD = /^(bild|foto|logo|titelbild|cover)$/;
   const DATUM = /^(datum|bis|mitglieder_stand)$/;
+  const ARTEN = ['Training', 'Turnier', 'Arbeitseinsatz', 'Veranstaltung', 'Belegt'];
   const WOCHENTAGE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
   const PLAETZE = [
-    [0, '0 – Anlage nicht verfügbar (z. B. Ligaspiele)'],
+    [0, '0 – Anlage nicht verfügbar (z. B. Turnier oder Arbeitseinsatz)'],
     [1, '1 Platz'],
     [2, '2 Plätze'],
     [3, '3 Plätze'],
@@ -284,6 +352,23 @@
   // =========================================================================
   const api = async (pfad, opts = {}) => {
     if (DEMO) return demoApi(pfad, opts);
+    if (SERVER) {
+      // /__api/write?path=… → admin/api.php?aktion=write&path=…
+      const u = new URL(pfad, location.href);
+      const aktion = u.pathname.replace('/__api/', '');
+      const res = await fetch(`${API_URL}?aktion=${aktion}${u.search ? '&' + u.search.slice(1) : ''}`, {
+        ...opts,
+        credentials: 'same-origin',
+        headers: { ...(opts.headers || {}), 'X-CSRF': csrf },
+      });
+      const data = await res.json().catch(() => ({ fehler: 'Unerwartete Antwort vom Server' }));
+      if (res.status === 401) {
+        toast('Sie wurden abgemeldet (zu lange inaktiv). Bitte neu anmelden – ungespeicherte Änderungen vorher kopieren.', true);
+        throw new Error(data.fehler || 'Bitte anmelden');
+      }
+      if (!res.ok) throw new Error(data.fehler || 'Fehler');
+      return data;
+    }
     const res = await fetch(pfad, opts);
     const data = await res.json();
     if (!res.ok) throw new Error(data.fehler || 'Fehler');
@@ -355,6 +440,93 @@
     return r;
   };
   const hochladen = (file) => api(`/__api/upload?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file }).then((d) => d.url);
+
+  /**
+   * Server: alle Seiten mit dem aktuellen Stand neu erzeugen und nur die geänderten hochladen.
+   * (Gleicher Code wie Build und Vorschau – lib/site.mjs.) Gibt die Zahl der geänderten Dateien zurück.
+   */
+  async function veroeffentlichen() {
+    if (!SERVER) return 0;
+    alleCache = null;
+    const site = await import(`${LIB}/site.js`);
+    const wetter = await fetch(`${BASIS}/wetter.json`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    const erg = site.renderSite({ files: await alleDateien(), heute: heute(), wetter, BASE: BASIS });
+    const neu = erg.dateien();
+    const alt = await api('/__api/pruefsummen');
+    const hash = async (t) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))).map((b) => b.toString(16).padStart(2, '0')).join('');
+    const geaendert_ = [];
+    for (const [rel, inhalt] of Object.entries(neu)) if (alt[rel] !== (await hash(inhalt))) geaendert_.push(rel);
+    const loeschen = Object.keys(alt).filter((rel) => !(rel in neu));
+    // In Paketen bis ca. 1,5 MB senden (große Erstveröffentlichung)
+    let paket = {};
+    let groesse = 0;
+    const senden = async (letztes) =>
+      api('/__api/veroeffentlichen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dateien: paket, loeschen: letztes ? loeschen : [] }) });
+    for (const rel of geaendert_) {
+      paket[rel] = neu[rel];
+      groesse += neu[rel].length;
+      if (groesse > 1.5e6) {
+        await senden(false);
+        paket = {};
+        groesse = 0;
+      }
+    }
+    if (Object.keys(paket).length || loeschen.length) await senden(true);
+    return geaendert_.length + loeschen.length;
+  }
+  /** Nach dem Speichern: im Server-Modus gleich veröffentlichen und Bescheid geben. */
+  async function nachDemSpeichern(text = 'Gespeichert ✓') {
+    if (!SERVER) return toast(text);
+    toast('Gespeichert – Seite wird aktualisiert …');
+    try {
+      const n = await veroeffentlichen();
+      toast(`Gespeichert und veröffentlicht ✓ (${n} ${n === 1 ? 'Datei' : 'Dateien'} aktualisiert)`);
+    } catch (e) {
+      toast(`Gespeichert, aber die Seite konnte nicht aktualisiert werden: ${e.message}`, true);
+    }
+  }
+
+  /** Passwort ändern (Server-Modus). */
+  function passwortDialog() {
+    let dlg = $('#ed-passwort');
+    if (!dlg) {
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        `<dialog id="ed-passwort" class="form-dialog ed-dialog"><form method="dialog" class="ed-form">
+          <h2>Passwort ändern</h2>
+          <label class="ed-field"><span>Bisheriges Passwort</span><input name="alt" type="password" autocomplete="current-password" required></label>
+          <label class="ed-field"><span>Neues Passwort</span><input name="neu" type="password" autocomplete="new-password" minlength="10" required><small>Mindestens 10 Zeichen – gern ein kurzer Satz, z. B. „Aufschlag-im-Sommer-2027“.</small></label>
+          <label class="ed-field"><span>Neues Passwort wiederholen</span><input name="neu2" type="password" autocomplete="new-password" required></label>
+          <p class="ed-login-fehler" role="alert" hidden></p>
+          <div class="stack-actions"><button class="btn btn-primary" value="ok">Ändern</button><button class="btn btn-secondary" value="cancel" formnovalidate>Abbrechen</button></div>
+        </form></dialog>`
+      );
+      dlg = $('#ed-passwort');
+      const f = $('form', dlg);
+      f.addEventListener('submit', async (e) => {
+        if (e.submitter?.value !== 'ok') return;
+        e.preventDefault();
+        const fehlerEl = $('.ed-login-fehler', f);
+        if (f.neu.value !== f.neu2.value) {
+          fehlerEl.textContent = 'Die beiden neuen Passwörter stimmen nicht überein.';
+          fehlerEl.hidden = false;
+          return;
+        }
+        try {
+          await api('/__api/passwort', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ alt: f.alt.value, neu: f.neu.value }) });
+          sessionStorage.removeItem('redaktion-schwach');
+          dlg.close();
+          f.reset();
+          toast('Passwort geändert ✓');
+        } catch (err) {
+          fehlerEl.textContent = err.message;
+          fehlerEl.hidden = false;
+        }
+      });
+    }
+    $('.ed-login-fehler', dlg).hidden = true;
+    dlg.showModal();
+  }
 
   function toast(msg, fehler = false) {
     if (DEMO && /^Gespeichert|gelöscht/.test(msg)) msg = msg.replace(/ –.*$/, '') + ' (Testversion: nur in diesem Browserfenster, nicht veröffentlicht)';
@@ -783,7 +955,7 @@
       try {
         await schreiben(ziel, text, pfad);
         geaendert = false;
-        toast('Gespeichert ✓');
+        await nachDemSpeichern();
         if (ziel !== pfad) {
           pfad = ziel;
           history.replaceState(null, '', `#news/${encodeURIComponent(ziel)}`);
@@ -808,7 +980,7 @@
         await api(`/__api/delete?path=${encodeURIComponent(pfad)}`, { method: 'POST' });
         alleCache = null;
         geaendert = false;
-        toast('Beitrag gelöscht.');
+        await nachDemSpeichern('Beitrag gelöscht.');
         location.hash = 'news';
       });
     bindeLoeschen();
@@ -897,7 +1069,7 @@
           dateien[p].original = text;
         }
         geaendert = false;
-        toast('Gespeichert ✓');
+        await nachDemSpeichern();
         // Sortierte Reihenfolge (Termine, Trainingszeiten) sofort anzeigen
         if (dateien['data/termine.json'] || dateien['data/training.json']) seiteEditor(id);
         return true;
@@ -1018,7 +1190,7 @@
   /** Überschrift eines Listeneintrags, z. B. „Montag 16:00–17:00 · Kindertraining“. */
   function eintragTitel(item, i) {
     if (typeof item !== 'object' || !item) return String(item || `Eintrag ${i + 1}`);
-    if (item.tag) return `${item.tag} ${item.von ? `${item.von}–${item.bis}` : 'ganztags'} · ${item.gruppe || 'neue Trainingszeit'}`;
+    if (item.tag) return `${item.tag} ${item.von ? `${item.von}–${item.bis}` : 'ganztags'} · ${item.art || item.gruppe || 'neue Belegung'}`;
     if ('datum' in item && 'titel' in item) return `${item.datum || 'ohne Datum'} · ${item.titel || 'neuer Termin'}`;
     if ('gruppe' in item && 'betrag' in item) return `${item.gruppe || 'neue Gruppe'} · ${item.betrag} €`;
     if ('name' in item && ('vorstand' in item || 'trainer' in item)) return personTitel(item);
@@ -1035,7 +1207,9 @@
       return ['Infobox oben auf der Seite „Termine“ (optional)', 'Erscheint als farbiger Kasten über der Terminliste, z. B. „Die Termine für 2027 folgen im Januar.“ Leer lassen = kein Kasten.'];
     if (key === 'hinweise' && parent && Array.isArray(parent.zeiten))
       return ['Hinweise (grüne Kästen über dem Wochenplan)', 'z. B. „Es steht immer ein Platz zum freien Spielen zur Verfügung.“'];
-    if (key === 'hinweis' && parent && 'tag' in parent) return ['Zusatz (optional)', 'Kurzer Zusatz in der Übersicht, z. B. „ggf. anmelden“'];
+    if (key === 'hinweis' && parent && 'tag' in parent) return ['Zusatz (optional)', 'Kurzer allgemeiner Zusatz, z. B. „mit Flutlicht“. Bitte keine Namen und keine Gruppen – der Plan ist öffentlich.'];
+    if (key === 'verwendungszweck') return ['Verwendungszweck', 'Teile in geschweiften Klammern (z. B. {Jahr}, {Vorname Nachname}) erscheinen als Platzhalter zum Ausfüllen.'];
+    if (key === 'hinweis' && parent && 'betrag' in parent) return ['Zusatz (optional)', 'Kurzer Hinweis zur Gruppe, z. B. „bis zu 50 € zurück für Arbeitsstunden“'];
     if (key === 'titel' && parent && Array.isArray(parent.zeiten)) return ['Überschrift des Wochenplans', 'z. B. „Platzbelegung 2027“ – zu Saisonbeginn anpassen.'];
     return null;
   }
@@ -1055,7 +1229,7 @@
       for (const k of Object.keys(wert)) {
         if (VERSTECKT.has(k)) continue;
         const f = feld(wert[k], k, (v) => (wert[k] = v), wert);
-        if (istTraining && ['tag', 'von', 'bis', 'plaetze'].includes(k)) {
+        if (istTraining && ['tag', 'von', 'bis', 'art', 'plaetze'].includes(k)) {
           if (!row) {
             row = document.createElement('div');
             row.className = 'ed-row';
@@ -1242,7 +1416,8 @@
 
     // ---- Text / Zahl / Datum / Uhrzeit / Bild / Wochentag
     let input;
-    if (key === 'tag') input = `<select>${WOCHENTAGE.map((t) => `<option${t === wert ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
+    if (key === 'art' && parent && 'plaetze' in parent) input = `<select>${(ARTEN.includes(wert) ? ARTEN : [wert, ...ARTEN]).map((t) => `<option${t === wert ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+    else if (key === 'tag') input = `<select>${WOCHENTAGE.map((t) => `<option${t === wert ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
     // „von/bis“ bei Trainingszeiten = Uhrzeit, „bis“ beim Banner = Datum
     else if (key === 'uhrzeit' || ((key === 'von' || key === 'bis') && parent && 'von' in parent))
       input = `<input type="time" step="900" value="${esc(String(wert).replace('.', ':'))}">`;
@@ -1269,4 +1444,9 @@
 
   // Los geht's – erst jetzt, damit alle Funktionen und Einstellungen oben bereitstehen
   route();
+  if (SERVER) {
+    if (sessionStorage.getItem('redaktion-schwach')) setTimeout(() => toast('Tipp: Bitte oben über „Passwort ändern“ ein sicheres Passwort (mind. 10 Zeichen) wählen.'), 1500);
+    // Einmal am Tag beim ersten Anmelden alles neu erzeugen (vergangene Termine, News-Archiv …)
+    if (ich?.stand !== heute()) veroeffentlichen().catch(() => {});
+  }
 })();

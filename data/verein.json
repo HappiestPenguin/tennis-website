@@ -5,18 +5,28 @@
   "beitraege": [
     {
       "gruppe": "Kinder / Schüler",
-      "betrag": 138
+      "betrag": 138,
+      "hinweis": "bis zu 50 € zurück für Arbeitsstunden"
     },
     {
       "gruppe": "Studierende / Azubis",
-      "betrag": 110
+      "betrag": 110,
+      "hinweis": ""
     },
     {
       "gruppe": "Erwachsene",
-      "betrag": 130
+      "betrag": 130,
+      "hinweis": ""
     }
   ],
   "beitraege_stand": "2023",
+  "bank": {
+    "empfaenger": "BSG Stahl Eisenhüttenstadt e.V.",
+    "iban": "DE91 1705 5050 3508 5881 80",
+    "bic": "WELADED1LOS",
+    "kreditinstitut": "Sparkasse Oder-Spree",
+    "verwendungszweck": "Mitgliedsbeitrag {Jahr}, Abteilung Tennis, {Vorname Nachname}"
+  },
   "hinweis_banner": {
     "text": "Winterpause: Der Spielbetrieb auf der Anlage ist seit dem 1. November eingestellt.",
     "link": "/termine/",
@@ -25,7 +35,7 @@
   },
   "start_titel": "Tennis für jedermann",
   "start_titel_2": "in Eisenhüttenstadt.",
-  "start_text": "3 Sandplätze, 1 Hartplatz, Flutlicht und ein Vereinsheim mit Terrasse – und eine Gemeinschaft, in der Kinder genauso spielen wie 80-Jährige.",
+  "start_text": "3 Sandplätze, 1 Hartplatz, Flutlicht und ein Vereinsheim mit Terrasse.",
   "name": "BSG Stahl Eisenhüttenstadt e.V.",
   "abteilung": "Abteilung Tennis",
   "kurzname": "BSG Stahl Tennis",

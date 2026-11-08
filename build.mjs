@@ -4,6 +4,7 @@
  *
  *   node build.mjs                    → normaler Aufruf (npm run build)
  *   BASE_PATH=/repo node build.mjs    → wenn die Seite in einem Unterordner liegt (z. B. GitHub Pages ohne eigene Domain)
+ *   node build.mjs --strato           → zusätzlich Upload-Paket für den Webspace (dist-strato/, siehe README)
  *   VORSCHAU=1 SITE_URL=https://maik.bsg-tennis.de node build.mjs
  *                                     → Test-/Vorschauversion: für Suchmaschinen gesperrt,
  *                                       eigene Adresse (schreibt dazu eine CNAME-Datei für GitHub Pages)
@@ -24,8 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { renderSite } from './lib/site.mjs';
 import { NEWS_JAHRE } from './lib/content.mjs';
 import { ladeWetter } from './lib/weather.mjs';
-import * as F from './lib/feeds.mjs';
-import { slugify, heuteIso } from './lib/helpers.mjs';
+import { heuteIso } from './lib/helpers.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(ROOT, 'dist');
@@ -70,32 +70,17 @@ export async function build({ quiet = false } = {}) {
     VORSCHAU,
     medienLokal: (rel) => fs.existsSync(path.join(PUBLIC, 'media', rel)),
   });
-  const { pages, stats, verein, vorstand, termine, posts, aktuell, alben } = site;
-  for (const p of pages) {
-    const file = p.url.endsWith('/') ? path.join(DIST, p.url, 'index.html') : path.join(DIST, p.url);
-    write(file, p.html);
-  }
+  const { pages, stats, termine, posts, aktuell, alben } = site;
 
-  // ---- 4. Zusatzdateien ---------------------------------------------------
-  for (const [alt, neu] of Object.entries(F.ALTE_ADRESSEN)) write(path.join(DIST, alt), F.redirect(BASE + neu));
-  write(path.join(DIST, 'termine.ics'), F.ics({ termine, verein }));
-  write(path.join(DIST, 'feed.xml'), F.rss({ posts: aktuell.slice(0, 20), verein, BASE }));
-  write(path.join(DIST, 'sitemap.xml'), F.sitemap({ urls: pages.filter((p) => !p.noindex && !p.raw && p.url !== '/404.html').map((p) => p.url), verein, BASE }));
-  write(
-    path.join(DIST, 'robots.txt'),
-    VORSCHAU ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: ${verein.url}${BASE}/sitemap.xml\n`
-  );
+  // ---- 4. Alle Ausgabedateien schreiben (Seiten, Kalender, Feeds, Sitemap, Kontaktkarten …) ----
+  for (const [rel, inhalt] of Object.entries(site.dateien())) write(path.join(DIST, rel), inhalt);
   // Eigene Adresse für GitHub Pages (z. B. maik.bsg-tennis.de)
   if (SITE_URL && !BASE) write(path.join(DIST, 'CNAME'), new URL(SITE_URL).hostname + '\n');
-  write(path.join(DIST, 'linkziele.json'), JSON.stringify(site.linkziele));
   if (wetter) write(path.join(DIST, 'wetter.json'), JSON.stringify(wetter));
-  for (const p of vorstand.alle) {
-    if (!p.kontakt_freigegeben || !(p.telefon || p.email)) continue;
-    const funktion = [p.vorstand, p.trainer].filter(Boolean).join(', ') || p.funktion; // z. B. „Abteilungsleiter, Trainer“
-    write(path.join(DIST, 'kontakte', `${slugify(p.name)}.vcf`), F.vcard({ ...p, funktion }, verein));
-  }
   // Online-Redaktion als Testversion unter /admin/ (Anmeldung mit Test-Zugang, speichert nichts)
   baueAdminTest(files);
+  // Upload-Paket für den Webspace mit echter Redaktion (PHP)
+  if (process.argv.includes('--strato')) await baueStratoPaket(files, site);
 
   if (!quiet) {
     console.log(`✔ ${pages.length} Seiten gebaut in ${Date.now() - t0} ms  (${aktuell.length} aktuelle News, ${posts.length - aktuell.length} im Archiv, ${alben.length} Fotoalben, ${termine.length} Termine, Wetter: ${wetter ? 'ja' : 'nicht verfügbar'})`);
@@ -148,6 +133,61 @@ function baueAdminTest(files) {
     .replace(/<span class="ed-hint">[^<]*<\/span>/, '<span class="ed-hint">Testversion zum Ausprobieren: Änderungen bleiben nur in diesem Browserfenster und werden nicht veröffentlicht.</span>')
     .replace('class="btn btn-small btn-secondary" href="/"', `class="btn btn-small btn-secondary" href="${BASE}/"`);
   write(path.join(ziel, 'index.html'), html);
+}
+
+// ---------------------------------------------------------------------------
+// Upload-Paket für den Webspace (STRATO o. ä.) mit echter Redaktion
+// ---------------------------------------------------------------------------
+
+/**
+ * dist-strato/ enthält alles, was einmalig per SFTP in den Webspace geladen wird:
+ *   Website (fertige Seiten), admin/ (Redaktion + api.php), wetter.php, .htaccess,
+ *   intern/ (gesperrt: Inhalte, Konten aus server-konten.json, Liste der veröffentlichten Dateien).
+ * Danach wird nur noch online in der Redaktion gearbeitet – Änderungen sind sofort sichtbar.
+ * Achtung bei späteren Programm-Updates: den Ordner intern/ auf dem Server NICHT überschreiben.
+ */
+async function baueStratoPaket(files, site) {
+  const { kontenAlsPhp } = await import('./tools/konto.mjs');
+  const crypto = await import('node:crypto');
+  const ZIEL = path.join(ROOT, 'dist-strato');
+  fs.rmSync(ZIEL, { recursive: true, force: true });
+  fs.mkdirSync(ZIEL, { recursive: true });
+  copyDir(DIST, ZIEL);
+  for (const weg of ['admin', 'wetter.json', 'CNAME']) fs.rmSync(path.join(ZIEL, weg), { recursive: true, force: true });
+
+  // Redaktion im Server-Modus
+  const admin = path.join(ZIEL, 'admin');
+  const quelle = path.join(ROOT, 'tools/redaktion');
+  for (const f of ['redaktion.js', 'redaktion.css']) write(path.join(admin, f), fs.readFileSync(path.join(quelle, f)));
+  for (const m of BROWSER_MODULE) write(path.join(admin, 'lib', `${m}.js`), browserModul(m));
+  write(path.join(admin, 'api.php'), fs.readFileSync(path.join(ROOT, 'server/admin/api.php')));
+  write(
+    path.join(admin, 'index.html'),
+    fs
+      .readFileSync(path.join(quelle, 'index.html'), 'utf8')
+      .replace('<title>Lokale Redaktion', '<title>Redaktion')
+      .replace('href="/redaktion/redaktion.css"', `href="${BASE}/admin/redaktion.css"`)
+      .replace('href="/css/style.css"', `href="${BASE}/css/style.css"`)
+      .replace('<script defer src="/redaktion/redaktion.js"></script>', `<script>window.REDAKTION_MODUS = 'server'; window.REDAKTION_BASIS = '${BASE}'; window.REDAKTION_LIB = '${BASE}/admin/lib';</script>\n  <script defer src="${BASE}/admin/redaktion.js"></script>`)
+      .replace('href="/redaktion/">Lokale Redaktion', `href="${BASE}/admin/">Redaktion`)
+      .replace(/<span class="ed-hint">[^<]*<\/span>/, '<span class="ed-hint">Links aufgebaut wie die Website, rechts die Live-Vorschau. Speichern veröffentlicht sofort.</span>')
+      .replace('class="btn btn-small btn-secondary" href="/"', `class="btn btn-small btn-secondary" href="${BASE}/"`)
+  );
+
+  // Wetter vom eigenen Server, Einstellungen, gesperrter Ordner
+  write(path.join(ZIEL, 'wetter.php'), fs.readFileSync(path.join(ROOT, 'server/wetter.php')));
+  write(path.join(ZIEL, '.htaccess'), fs.readFileSync(path.join(ROOT, 'server/.htaccess')));
+  const intern = path.join(ZIEL, 'intern');
+  write(path.join(intern, '.htaccess'), fs.readFileSync(path.join(ROOT, 'server/intern/.htaccess')));
+  for (const [rel, text] of Object.entries(files)) write(path.join(intern, 'inhalt', rel), text);
+  const konten = fs.existsSync(path.join(ROOT, 'server-konten.json')) ? JSON.parse(fs.readFileSync(path.join(ROOT, 'server-konten.json'), 'utf8')) : {};
+  write(path.join(intern, 'benutzer.php'), kontenAlsPhp(konten));
+  // Welche Dateien schon veröffentlicht sind (damit die Redaktion später nur Geändertes hochlädt)
+  const manifest = Object.fromEntries(Object.entries(site.dateien()).map(([rel, t]) => [rel, crypto.createHash('sha256').update(t).digest('hex')]));
+  write(path.join(intern, 'veroeffentlicht.json'), JSON.stringify(manifest));
+  write(path.join(intern, 'stand.txt'), heuteIso());
+  fs.mkdirSync(path.join(ZIEL, 'media/uploads'), { recursive: true });
+  console.log(`✔ Upload-Paket: dist-strato/ (${Object.keys(konten).length} ${Object.keys(konten).length === 1 ? 'Konto' : 'Konten'})${Object.keys(konten).length ? '' : ' – Achtung: noch kein Konto, siehe „npm run konto“'}`);
 }
 
 // ---------------------------------------------------------------------------

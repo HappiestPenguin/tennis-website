@@ -32,20 +32,15 @@ Stand: November 2026
 ## 3. Technische Einrichtung
 
 - [ ] **GitHub nur für die Testphase** (Maiks Konto). Nach dem Umzug zu STRATO wird es nicht mehr gebraucht: Testprojekt dann auf „privat“ stellen oder löschen.
-- [ ] **PHP-Version der Seite bauen** (nach Annahme, Hoster STRATO):
-  - Gleiches Design, gleiche Inhaltsdateien (News als Textdateien, Daten als JSON) – die vorhandenen Inhalte werden 1:1 übernommen
-  - Seiten werden beim Aufruf von PHP erzeugt (mit Zwischenspeicher, damit die Seite schnell bleibt)
-  - Automatisch wie bisher: Archiv nach 8 Jahren, vergangene Termine, Fotoalben aus Berichten, Wetter (stündlich vom Server abgerufen, keine Daten der Besucher an Dritte)
-  - Kontaktformular und Gästebuch direkt über STRATO verschicken (form.taxi entfällt)
-  - Alte Adressen weiterleiten, Kalender-Abo, RSS, Sitemap, Kontaktkarten wie bisher
-- [ ] **Online-Redaktion mit echter Anmeldung (PHP)** – ersetzt die Testversion unter `/admin/` (Zugang `Bearbeiter1` / `Test1234`):
-  - Anmeldung mit **E-Mail + Passwort**, Liste der berechtigten Personen auf dem Server (Passwörter nur verschlüsselt/gehasht gespeichert, nie im Seitencode)
-  - Sperre nach mehreren Fehlversuchen, nur über HTTPS, Schutz gegen untergeschobene Formulare (CSRF), automatische Abmeldung
-  - Jede Person hat eigene Zugangsdaten (kein Sammelpasswort); Austritt = Eintrag löschen
-  - Speichern direkt auf dem Webspace → Änderung sofort online; Bilder/PDFs hochladen; automatische Sicherung vor jeder Änderung
-  - Bedienung wie jetzt: Menü wie die Website, Bausteine je Seite, Live-Vorschau der echten Seite (die Vorschau-Technik im Browser bleibt erhalten)
-  - Datenschutz: unkritisch (nur E-Mail-Adressen der Redakteure, Server in Deutschland); kurz in der Datenschutzerklärung ergänzen
-- [ ] Bis dahin: Test-Zugang vor dem echten Livegang entfernen oder durch die PHP-Anmeldung ersetzen
+- [x] **STRATO-Version gebaut:** gleiche Seite, gleiche Inhalte; Wetter stündlich über `wetter.php`, alte Adressen, Kalender-Abo, RSS, Sitemap, Kontaktkarten wie bisher. Termine/Archiv werden täglich bei der ersten Anmeldung aktualisiert.
+- [x] **Online-Redaktion mit echter Anmeldung (PHP) gebaut und getestet** (`npm run strato`, siehe README „Betrieb bei STRATO“):
+  - Anmeldung mit E-Mail/Benutzername + Passwort, Zugänge nur als Hash auf dem Server, Sperre nach 5 Fehlversuchen, CSRF-Schutz, automatische Abmeldung
+  - Speichern = sofort online (nur geänderte Seiten werden hochgeladen), Bilder/PDFs hochladen, Sicherung vor jeder Änderung, Protokoll
+  - Erster Zugang: `bearbeiter` / `BEARBEITER` – **nach der ersten Anmeldung über „Passwort ändern“ ein sicheres Passwort setzen**
+- [ ] **STRATO-Zugang (SFTP) besorgen**, Paket hochladen, PHP 8.2+ und SSL einstellen, Test: `/intern/benutzer.php` muss gesperrt sein
+- [ ] Persönliche Zugänge für die Redakteure anlegen (eine Person = ein Zugang), dann den Sammelzugang `bearbeiter` entfernen
+- [ ] Datenschutzerklärung: Satz zur Redaktion ergänzen (Protokoll mit Benutzername/Zeit, keine Besucherdaten)
+- [ ] Noch offen für die PHP-Version: Kontaktformular und Gästebuch direkt über STRATO verschicken (dann entfällt form.taxi)
 - [ ] **Formulare (form.taxi) – nur für die Testphase nötig**, mit der PHP-Version entfällt form.taxi. Bis dahin: Kontaktformular und Gästebuch schicken ihre Eingaben über form.taxi (Server in der EU) per E-Mail weiter. Die bisherige Formular-Adresse wurde von der alten Seite übernommen.
   1. Klären, **wem das bestehende form.taxi-Konto gehört** und an welche Adresse es weiterleitet. Ist kein Zugang da: neues Konto mit einer Vereinsadresse anlegen (kostenloser Tarif reicht: 3 Formulare, 40 Einsendungen/Monat).
   2. Zwei Formulare anlegen (Kontakt, Gästebuch), **Empfänger** eintragen und bestätigen (z. B. `kontakt@bsg-tennis.de`, bei STRATO an die zuständigen Personen weiterleiten).
@@ -66,7 +61,9 @@ Stand: November 2026
 - [x] **Trainer:** Hans Dudek in die Trainerliste aufgenommen, Donnerstag (Herren) Detlef Engel zugeordnet
 - [x] Schreibweise **Hans Dudek** bestätigt und in alten Berichten vereinheitlicht
 - [ ] **Beiträge** (gültig seit 2023) noch aktuell? Pflege jetzt an einer Stelle: Redaktion → Vereinsdaten → Mitgliedsbeiträge
-- [ ] **Mitgliedsantrag (PDF)**, Satzung und Abteilungsordnung: neueste Fassung?
+- [ ] **Kinderturnier 2025:** Sieger erfragen (Zeile in „Kinder & Jugend“ ist angelegt)
+- [ ] **Grundlehrgang:** Preis erfragen und auf „Training & Mitgliedschaft“ ergänzen
+- [ ] **Abteilungsordnung:** Online steht noch die Fassung von 2019 (Kinder 88 €). Aktuelle Fassung mit der Änderung von 2023 (138 € + 5 € je Arbeitsstunde zurück) besorgen und austauschen
 - [ ] **Winterpause-Banner:** Enddatum (derzeit 31.03.2027) an den tatsächlichen Saisonstart anpassen
 - [ ] **Termine 2027** eintragen, sobald bekannt
 - [ ] **Unterstützer-Liste** aktuell? Optional Logos (nur mit Erlaubnis der Firmen)
@@ -74,7 +71,7 @@ Stand: November 2026
 - [ ] **Geschichte:** Fakten und Jahreszahlen gegenlesen
 
 - [ ] **Neuer Aufnahmeantrag** (`public/media/dokumente/Aufnahmeantrag-BSG-Stahl-Tennis.pdf`, am Computer ausfüllbar) gegenlesen:
-  - Beiträge, Grundlehrgang, Aufnahmegebühr und die Regel „10 Arbeitsstunden für Erwachsene, Kinder/Schüler befreit“ korrekt?
+  - ✓ Beiträge, Aufnahmegebühr, Arbeitsstunden (Erwachsene 10 h oder 10 €/h; Kinder/Schüler freiwillig, je Stunde 5 € zurück, max. 50 €) und freiwilliger Grundlehrgang – mit Maik geklärt
   - Datenschutzhinweise (Seite 2): Wer bekommt die Daten (Hauptverein, Tennisverband/Sportbund)? Stimmt das so?
   - Werden Beiträge per **Lastschrift** eingezogen? Dann fehlt noch ein SEPA-Lastschriftmandat (braucht die Gläubiger-ID des Vereins).
   - Die Foto-Einwilligung ist neu – damit ist der Punkt „Einwilligung für Kinderfotos“ für neue Mitglieder gelöst.
@@ -103,4 +100,3 @@ Automatisch, ohne Zutun: News älter als 8 Jahre wandern ins Archiv, vergangene 
 - [ ] Sponsorenlogos
 - [ ] Mitgliedsantrag als Online-Formular statt PDF
 - [ ] Online-Platzbuchung (nur falls Plätze knapp werden)
-- [ ] Ergebnisse der Herrenmannschaft per Link zu nuLiga/TVBB

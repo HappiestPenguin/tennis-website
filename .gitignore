@@ -3,3 +3,5 @@ node_modules/
 .cache/
 .tmp-transfer/
 .DS_Store
+server-konten.json
+dist-strato/

@@ -9,13 +9,13 @@ beschreibung: Platzbelegung, Trainingszeiten, Mitgliedschaft und Schlägerbespan
 ## Was erwartet Sie als Mitglied?
 
 - Kostenfreies Tennis auf der Tennisanlage – außerhalb der Trainingszeiten, so viel Sie wollen
-- Vor der Mitgliedschaft: 10 Stunden Grundlehrgang (kostenpflichtig)
-- Aufnahmegebühr gemäß Satzung (bitte erfragen)
-- Schlüssel für die Tennisanlage (optional, gegen Kaution)
+- Auf Wunsch: Grundlehrgang für Einsteiger, auch für Erwachsene (10 Stunden, kostenpflichtig, findet statt, sobald genug Teilnehmer zusammenkommen)
+- Einmalige Aufnahmegebühr laut Abteilungsordnung: 35 € für Kinder, Jugendliche und Studierende, 50 € für Erwachsene
+- Schlüssel für die Tennisanlage (optional, für Erwachsene gegen 20 € Kaution)
 - Schlüssel für einen Umkleideschrank (optional, gegen Kaution)
 - Regelmäßige Beitragszahlung gemäß [Satzung](/satzung/)
 
-Die Tennisanlage wird eigenverantwortlich von den Mitgliedern der Abteilung bewirtschaftet. Deshalb leistet jedes Mitglied **10 Stunden pro Jahr** zur Erhaltung der Anlage.
+Die Tennisanlage wird eigenverantwortlich von den Mitgliedern der Abteilung bewirtschaftet. Deshalb leistet jedes erwachsene Mitglied **10 Arbeitsstunden pro Jahr** zur Erhaltung der Anlage (oder zahlt 10 € je nicht geleisteter Stunde). Kinder und Schüler sind dazu nicht verpflichtet – helfen sie mit, bekommen sie für bis zu 10 Stunden je 5 € vom Beitrag zurück (also bis zu 50 €).
 
 [Zum Aufnahmeantrag (PDF, am Computer ausfüllbar)](/media/dokumente/Aufnahmeantrag-BSG-Stahl-Tennis.pdf)
 

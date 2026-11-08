@@ -7,4 +7,4 @@ Auf diesen Seiten finden Sie Informationen über unseren Verein und unsere Aktiv
 
 Wir sind an begeisternden und begeisterten Mitspielern interessiert! **Haben Sie Spaß am Tennis?** Dann melden Sie sich unverbindlich bei uns – egal ob Anfänger, Wiedereinsteiger oder Turnierspieler, ob Kind oder Senior.
 
-Unsere neue Abteilungsordnung finden Sie unter [Satzung & Beiträge](/satzung/).
+Beiträge, Abteilungsordnung und Aufnahmeantrag finden Sie unter [Satzung & Beiträge](/satzung/).

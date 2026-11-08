@@ -1,22 +1,101 @@
 {
-  "einleitung": "Unsere Anlage wird seit 2006 in Eigenregie von den Mitgliedern betrieben. Neues Flutlicht, Ballmaschine, Trainingsbekleidung, Zaun und Tenniswand – all das war nur möglich, weil uns Unternehmen, Stiftungen und viele Helfer unterstützt haben. Danke!",
-  "sponsoren": [
-    { "name": "Raiffeisen-Volksbank Oder-Spree", "beitrag": "1000 € für eine neue Ballmaschine (2025) – das dritte Jahr in Folge", "url": "", "logo": "" },
-    { "name": "Sparkasse Oder-Spree", "beitrag": "750 € für Trainings- und Platzbedarf (2021)", "url": "", "logo": "" },
-    { "name": "Jürgen Waschek – Deutsche Vermögensberatung", "beitrag": "Trainingsbekleidung und Trainer-Hoodies (2023)", "url": "", "logo": "" },
-    { "name": "Peter Müller Ausbau GmbH", "beitrag": "Materialien für Tenniswand und Vereinsheim", "url": "", "logo": "" },
-    { "name": "Autopflege Deluxe (Patrick)", "beitrag": "Preise für Vereinsveranstaltungen", "url": "", "logo": "" },
-    { "name": "Bürgerstiftung Eisenhüttenstadt", "beitrag": "Förderung von Tennisheim und Anlage", "url": "", "logo": "" },
-    { "name": "Landkreis Oder-Spree", "beitrag": "Förderung von Tennisheim und Anlage", "url": "", "logo": "" },
-    { "name": "Landessportbund Brandenburg", "beitrag": "Förderung der neuen Umzäunung", "url": "", "logo": "" },
-    { "name": "Fa. Richtsteig", "beitrag": "Technik für die Zaunerneuerung", "url": "", "logo": "" },
-    { "name": "WBV Malereinkauf GmbH", "beitrag": "Materialien für die Zaunerneuerung", "url": "", "logo": "" },
-    { "name": "Steinke & Beinio", "beitrag": "Elektroarbeiten beim Bau des Vereinsheims", "url": "", "logo": "" }
-  ],
-  "wege": [
-    { "icon": "bag", "titel": "Beim Online-Einkauf helfen", "text": "Über Klubkasse kaufen Sie wie gewohnt bei vielen Online-Shops ein – ein Teil des Kaufpreises geht an uns. Für Sie kostenlos. So haben wir z. B. unsere Anzeigetafeln finanziert.", "link": "https://www.klubkasse.de/klub-page.html?club_id=1888", "linktext": "Zu Klubkasse" },
-    { "icon": "gift", "titel": "Spenden", "text": "Jeder Euro fließt direkt in Bälle, Trainingsmaterial und die Pflege der Anlage. Sprechen Sie uns an – wir klären gern alle Details, auch zur Spendenbescheinigung.", "link": "/kontakt/?anliegen=unterstuetzen", "linktext": "Kontakt aufnehmen" },
-    { "icon": "shirt", "titel": "Sponsor werden", "text": "Trikots, Turnierpreise, Ballmaschine oder Flutlicht: Unternehmen aus der Region können gezielt ein Projekt unterstützen und werden hier und bei Turnieren genannt.", "link": "/kontakt/?anliegen=unterstuetzen", "linktext": "Sponsoring anfragen" },
-    { "icon": "tool", "titel": "Mit anpacken", "text": "Plätze herrichten, Rasen mähen, streichen, grillen: Bei Arbeitseinsätzen ist jede helfende Hand willkommen – auch von Eltern und Freunden.", "link": "/termine/", "linktext": "Zu den Terminen" }
-  ]
+ "einleitung": "Unsere Anlage wird seit 2006 in Eigenregie von den Mitgliedern betrieben. Vereinsheim, Zaun, Ballmaschine und Trainingsbekleidung – vieles davon war nur möglich, weil uns Unternehmen, Stiftungen und viele Helfer unterstützt haben. Danke!",
+ "sponsoren": [
+  {
+   "name": "Raiffeisen-Volksbank Oder-Spree",
+   "beitrag": "1000 € für eine neue Ballmaschine (2025) – das dritte Jahr in Folge",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Sparkasse Oder-Spree",
+   "beitrag": "750 € für Trainings- und Platzbedarf (2021)",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Jürgen Waschek – Deutsche Vermögensberatung",
+   "beitrag": "Trainingsbekleidung und Trainer-Hoodies (2023)",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Peter Müller Ausbau GmbH",
+   "beitrag": "Unterstützung beim Bau des Vereinsheims und Materialien für die Zaunerneuerung",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Autopflege Deluxe (Patrick)",
+   "beitrag": "Preise für Vereinsveranstaltungen",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Bürgerstiftung Eisenhüttenstadt",
+   "beitrag": "Förderung von Tennisheim und Anlage",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Landkreis Oder-Spree",
+   "beitrag": "Förderung von Tennisheim und Anlage",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Landessportbund Brandenburg",
+   "beitrag": "Förderung der neuen Umzäunung",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Fa. Richtsteig",
+   "beitrag": "Technik für die Zaunerneuerung",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "WBV Malereinkauf GmbH",
+   "beitrag": "Materialien für die Zaunerneuerung",
+   "url": "",
+   "logo": ""
+  },
+  {
+   "name": "Steinke & Beinio",
+   "beitrag": "Elektroarbeiten beim Bau des Vereinsheims",
+   "url": "",
+   "logo": ""
+  }
+ ],
+ "wege": [
+  {
+   "icon": "bag",
+   "titel": "Beim Online-Einkauf helfen",
+   "text": "Über Klubkasse kaufen Sie wie gewohnt bei vielen Online-Shops ein – ein Teil des Kaufpreises geht an uns. Für Sie kostenlos. So haben wir z. B. unsere Anzeigetafeln finanziert.",
+   "link": "https://www.klubkasse.de/klub-page.html?club_id=1888",
+   "linktext": "Zu Klubkasse"
+  },
+  {
+   "icon": "gift",
+   "titel": "Spenden",
+   "text": "Jeder Euro fließt direkt in Bälle, Trainingsmaterial und die Pflege der Anlage. Sprechen Sie uns an – wir klären gern alle Details, auch zur Spendenbescheinigung.",
+   "link": "/kontakt/?anliegen=unterstuetzen",
+   "linktext": "Kontakt aufnehmen"
+  },
+  {
+   "icon": "shirt",
+   "titel": "Sponsor werden",
+   "text": "Trikots, Turnierpreise, Ballmaschine oder Flutlicht: Unternehmen aus der Region können gezielt ein Projekt unterstützen und werden hier und bei Turnieren genannt.",
+   "link": "/kontakt/?anliegen=unterstuetzen",
+   "linktext": "Sponsoring anfragen"
+  },
+  {
+   "icon": "tool",
+   "titel": "Mit anpacken",
+   "text": "Plätze herrichten, Rasen mähen, streichen, grillen: Bei Arbeitseinsätzen ist jede helfende Hand willkommen – auch von Eltern und Freunden.",
+   "link": "/termine/",
+   "linktext": "Zu den Terminen"
+  }
+ ]
 }

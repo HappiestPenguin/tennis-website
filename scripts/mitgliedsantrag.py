@@ -13,6 +13,7 @@ Seite 2: Datenschutzhinweise nach Art. 13 DSGVO – zum Verbleib beim Mitglied
 """
 
 import json
+import re
 from pathlib import Path
 
 from reportlab.lib.colors import HexColor, white
@@ -219,9 +220,9 @@ def seite1(c):
         c.drawString(gx + 10 * mm, y - 10 * mm, f"{g['betrag']} € pro Jahr")
     y -= 16 * mm
     y = absatz(c, (
-        '<b>Gut zu wissen:</b> Vor der Mitgliedschaft absolvieren Einsteiger einen Grundlehrgang (10 Stunden, kostenpflichtig). '
-        'Hinzu kommt eine einmalige Aufnahmegebühr laut Satzung. Da die Mitglieder die Anlage selbst bewirtschaften, leisten Erwachsene '
-        '10 Arbeitsstunden pro Jahr (Kinder und Schüler sind davon befreit). Für Studierende/Azubis bitte einen Nachweis beifügen.'
+        '<b>Gut zu wissen:</b> Hinzu kommt eine einmalige Aufnahmegebühr (35 € für Kinder, Jugendliche und Studierende, 50 € für Erwachsene). '
+        'Da die Mitglieder die Anlage selbst bewirtschaften, leisten Erwachsene 10 Arbeitsstunden pro Jahr (oder 10 € je fehlender Stunde). '
+        'Kinder und Schüler sind nicht verpflichtet und bekommen für bis zu 10 geleistete Stunden je 5 € zurück. Für Studierende/Azubis bitte einen Nachweis beifügen.'
     ), RAND, y, BREITE, klein) - 3 * mm
     kaestchen(c, 'schluessel_anlage', RAND, y - 4.6 * mm, 'Schlüssel für die Tennisanlage')
     c.setFillColor(TINTE)
@@ -333,6 +334,29 @@ def seite2(c):
     c.setFillColor(TINTE)
     c.drawString(RAND + 21 * mm, y - 13.5 * mm, f"Kontaktformular: {verein['url'].replace('https://', '')}/kontakt  ·  E-Mail: {verein['email']}")
     c.drawString(RAND + 21 * mm, y - 18 * mm, f"Trainingszeiten und Beiträge: {verein['url'].replace('https://', '')}/angebote")
+
+    # Bankverbindung
+    bank = verein.get('bank') or {}
+    if bank.get('iban'):
+        y -= 27 * mm
+        c.setFillColor(PAPIER)
+        c.setStrokeColor(LINIE)
+        c.setLineWidth(0.6)
+        c.roundRect(RAND, y - 33 * mm, BREITE, 33 * mm, 2.5 * mm, stroke=1, fill=1)
+        c.setFillColor(GRUEN)
+        c.setFont(TITEL, 11)
+        c.drawString(RAND + 6 * mm, y - 8 * mm, 'Beitrag überweisen – jeweils bis zum 31. März')
+        zweck = re.sub(r'\{([^}]+)\}', r'[\1]', bank.get('verwendungszweck', ''))
+        zeilen = [('Empfänger', bank.get('empfaenger', '')), ('IBAN', bank['iban']),
+                  ('BIC / Bank', ' · '.join(x for x in (bank.get('bic'), bank.get('kreditinstitut')) if x)), ('Verwendungszweck', zweck)]
+        for i, (k, w) in enumerate(zeilen):
+            yy = y - 14 * mm - i * 4.8 * mm
+            c.setFont(TEXT, 9)
+            c.setFillColor(GRAU)
+            c.drawString(RAND + 6 * mm, yy, k)
+            c.setFont(TEXT_FETT if k == 'IBAN' else TEXT, 9.6)
+            c.setFillColor(TINTE)
+            c.drawString(RAND + 40 * mm, yy, w)
 
     fuss(c, f"{verein['name']} · {verein['abteilung']} · {verein['url'].replace('https://', '')}", 2)
 

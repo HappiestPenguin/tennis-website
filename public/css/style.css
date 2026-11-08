@@ -468,6 +468,15 @@ h3 { font-size: 1.3rem; }
 .prose--timeline h2 { position: relative; padding-left: 1.4rem; }
 .prose--timeline h2::before { content: ''; position: absolute; left: 0; top: 0.32em; width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--clay); box-shadow: 0 0 0 4px var(--clay-100); }
 
+.bank th { width: 34%; font-weight: 600; text-align: left; }
+@media (max-width: 600px) {
+  .bank tr { display: block; border-bottom: 1px solid var(--line); }
+  .bank tr:last-child { border-bottom: 0; }
+  .bank th, .bank td { display: block; width: auto; border: 0; }
+  .bank th { padding-bottom: 0; background: none; }
+  .bank td { padding-top: .2rem; }
+}
+.iban { white-space: nowrap; font-variant-numeric: tabular-nums; letter-spacing: .02em; user-select: all; -webkit-user-select: all; }
 .table-wrap { overflow-x: auto; margin: 0 0 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; font-size: 0.96rem; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--line); vertical-align: top; }

@@ -7,7 +7,7 @@ beschreibung: Datenschutzerklärung der Website der Abteilung Tennis der BSG Sta
 
 ## Auf einen Blick
 
-Diese Website setzt **keine Cookies**, verwendet **keine Analyse- oder Tracking-Werkzeuge** und lädt beim Aufruf **keine Inhalte von fremden Servern** (keine Google-Schriften, keine eingebetteten Karten, Videos oder Wetter-Widgets). Personenbezogene Daten verarbeiten wir nur, wenn Sie uns über ein Formular schreiben oder wenn Sie selbst auf einen Link zu einer anderen Website klicken.
+Diese Website setzt für Besucher **keine Cookies**, verwendet **keine Analyse- oder Tracking-Werkzeuge** und lädt beim Aufruf **keine Inhalte von fremden Servern** (keine Google-Schriften, keine eingebetteten Karten, Videos oder Wetter-Widgets). Personenbezogene Daten verarbeiten wir nur, wenn Sie uns über ein Formular schreiben oder wenn Sie selbst auf einen Link zu einer anderen Website klicken.
 
 ## Verantwortlicher
 
@@ -61,7 +61,9 @@ Unsere Seiten enthalten Links zu anderen Websites (z. B. TVBB, WetterOnline, Klu
 
 ## Redaktionsbereich
 
-Der Bereich „Redaktion“ (/admin) ist nur für Vereinsmitglieder mit Zugangsberechtigung bestimmt. Er lädt keine Inhalte von fremden Servern; die Anmeldung wird nur für die Dauer der Sitzung im Browser vermerkt. Für normale Besucher der Website spielt dies keine Rolle.
+Der Bereich „Redaktion“ (/admin) ist nur für Vereinsmitglieder mit eigenem Zugang bestimmt. Für Besucher der Website spielt er keine Rolle.
+
+Wer sich dort anmeldet, erhält ein technisch notwendiges Sitzungs-Cookie, das beim Abmelden bzw. nach spätestens 8 Stunden ohne Aktivität ungültig wird. Gespeichert werden Name bzw. E-Mail-Adresse der Redakteure und ihr Passwort ausschließlich als verschlüsselter Prüfwert. Damit nachvollziehbar bleibt, wer welche Seite geändert hat, protokollieren wir Zeitpunkt, Benutzername und geänderte Datei; zum Schutz vor Angriffen werden fehlgeschlagene Anmeldeversuche für 15 Minuten mit einem Prüfwert der IP-Adresse vermerkt. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren Pflege der Website (Art. 6 Abs. 1 lit. f DSGVO). Der Redaktionsbereich lädt keine Inhalte von fremden Servern.
 
 ## Ihre Rechte
 

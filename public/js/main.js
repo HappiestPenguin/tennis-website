@@ -76,7 +76,7 @@ const basis = () => (document.querySelector('link[rel="stylesheet"][href$="/css/
       const list = $('[data-today-list]', todayCard);
       list.innerHTML = zeiten.length
         ? zeiten
-            .map((z) => `<li><span class="t">${escapeHtml(z.zeit)}</span><span class="g">${escapeHtml(z.gruppe)}${z.belegt ? ' <b class="slot-badge">Anlage belegt</b>' : ''}${z.meta ? `<small>${escapeHtml(z.meta)}</small>` : ''}</span></li>`)
+            .map((z) => `<li><span class="t">${escapeHtml(z.zeit)}</span><span class="g">${escapeHtml(z.gruppe)}${z.belegt && z.gruppe !== 'Anlage nicht verfügbar' ? ' <b class="slot-badge">Anlage belegt</b>' : ''}${z.meta ? `<small>${escapeHtml(z.meta)}</small>` : ''}</span></li>`)
             .join('')
         : '<li class="muted">Heute kein Training – alle Plätze frei für Mitglieder.</li>';
     } catch {

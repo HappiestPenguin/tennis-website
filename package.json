@@ -8,8 +8,11 @@
     "node": ">=18"
   },
   "scripts": {
+    "start": "node serve.mjs",
     "dev": "node serve.mjs",
     "build": "node build.mjs",
+    "strato": "node build.mjs --strato",
+    "konto": "node tools/konto.mjs",
     "medien": "node scripts/medien-holen.mjs"
   }
 }

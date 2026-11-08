@@ -46,8 +46,8 @@ Im **Juni 2007** wurde der Grundstein für unser neues Vereinsheim gelegt. Hier 
 
 ## Heute
 
-Aufgrund der verbesserten Trainingsbedingungen und des Engagements der Übungsleiter wie Frank Hauwetter, Marius Schulz und Eric Neumann hat der Wille, in Eisenhüttenstadt wieder Tennis zu spielen, enorm zugenommen. Eine Kinder- und Jugendtrainingsgruppe wurde aufgebaut, und Eisenhüttenstadt ist wieder bei Bezirksmeisterschaften im Jugendbereich vertreten.
+Aufgrund der verbesserten Trainingsbedingungen und des Engagements der Übungsleiter wie Frank Hauwetter, Marius Schulz und Eric Neumann hat der Wille, in Eisenhüttenstadt wieder Tennis zu spielen, enorm zugenommen. Kinder- und Jugendtrainingsgruppen wurden aufgebaut, und bis 2017 waren unsere Jugendlichen wieder bei Regionalmeisterschaften erfolgreich.
 
-Seit 2018 spielt wieder eine Männermannschaft in der Bezirksliga des TVBB.
+In der Saison 2019 ging noch einmal eine Herrenmannschaft in der Bezirksliga des TVBB an den Start. Heute stehen das Training, unsere Vereinsturniere und das gemeinsame Spielen im Mittelpunkt.
 
 [Falls Sie Fragen zu unserer Chronik haben, sprechen Sie uns an.](/kontakt/)

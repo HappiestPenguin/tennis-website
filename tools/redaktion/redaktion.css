@@ -87,7 +87,11 @@ textarea.ed-auto { min-height: 5.6em; overflow: hidden; resize: vertical; }
 /* Kompakte Listen (z. B. Beiträge): immer offen, Felder nebeneinander */
 .ed-items--kompakt { display: grid; gap: 0.5rem; }
 .ed-item--kompakt { display: flex; align-items: flex-end; gap: 0.75rem; padding: 0.6rem 0.75rem; }
-.ed-item--kompakt .ed-item-felder { flex: 1; margin: 0; }
+.ed-item--kompakt .ed-item-felder { flex: 1; min-width: 0; margin: 0; }
+.ed-item-felder > textarea, .ed-item-felder > input { width: 100%; }
+.ed-item--kompakt:has(> .ed-item-felder > textarea) { flex-wrap: wrap; gap: 0.4rem; }
+.ed-item--kompakt:has(> .ed-item-felder > textarea) > .ed-item-felder { flex-basis: 100%; }
+.ed-item--kompakt:has(> .ed-item-felder > textarea) > .ed-item-tools { order: -1; margin-left: auto; padding: 0; }
 .ed-item--kompakt .ed-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .ed-item--kompakt .ed-row > .ed-field { flex: 1 1 160px; margin: 0; }
 .ed-item--kompakt .ed-item-tools { padding-bottom: 0.3rem; }
@@ -188,3 +192,7 @@ textarea.ed-auto { min-height: 5.6em; overflow: hidden; resize: vertical; }
   .ed-item > summary { gap: 0.5rem; }
   .ed-item-tools button { width: 30px; height: 30px; }
 }
+
+/* Server-Modus: angemeldete Person in der Kopfleiste */
+.ed-ich { font-size: 0.85rem; opacity: 0.85; white-space: nowrap; }
+@media (max-width: 760px) { .ed-ich, [data-passwort] { display: none; } }

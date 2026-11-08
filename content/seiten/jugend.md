@@ -4,13 +4,15 @@ beschreibung: Training, Turniere und Erfolge der Kinder und Jugendlichen der BSG
 ---
 Bei uns trainieren Kinder und Jugendliche mehrmals pro Woche in festen Gruppen unter Anleitung unserer Trainer. Kinder- und Jugendturniere organisieren die Trainer eigenständig – die Abteilung unterstützt sie finanziell.
 
-> [!HINWEIS] Trainingsgruppen derzeit belegt
-> Unsere Kinder- und Jugendgruppen sind aktuell voll. Neue Kinder bitte **offiziell über das [Kontaktformular](/kontakt/?anliegen=kinder)** anfragen (Anliegen „Kinder- und Jugendtraining“). Wir melden uns, sobald ein Platz frei wird.
+> [!TIPP] Neue Kinder sind jederzeit willkommen
+> Kinder und Jugendliche können jederzeit dazustoßen – auch mitten in der Saison. Bitte vorher kurz **Kontakt mit Detlef Engel** aufnehmen, am besten persönlich oder telefonisch (Nummer bei den Trainern unten), alternativ über das [Kontaktformular](/kontakt/?anliegen=kinder). Dann klären wir gemeinsam, welche Gruppe passt, und vereinbaren ein erstes Schnuppertraining.
 
 ## Turniersieger Kinderturnier
 
 | Jahr | Sieger/in |
 |---|---|
+| 2026 | Charlotte (U10), Helene (AK 12/13) |
+| 2025 | – |
 | 2016 | Maik Hauwetter |
 | 2015 | Maik Hauwetter |
 | 2014 | Maik Hauwetter |
@@ -26,7 +28,7 @@ Bei uns trainieren Kinder und Jugendliche mehrmals pro Woche in festen Gruppen u
 | 2013 | Tobias Müller |
 | 2012 | Michelle Poppitz |
 
-## Regionalmeisterschaften
+## Regionalmeisterschaften (2013–2017)
 
 | Jahr | Platzierung |
 |---|---|
