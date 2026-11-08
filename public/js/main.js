@@ -70,7 +70,7 @@ const basis = () => (document.querySelector('link[rel="stylesheet"][href$="/css/
   const todayCard = $('[data-today]');
   if (todayCard) {
     try {
-      // Die Daten sind beim Bauen schon aufbereitet (Uhrzeit, Gruppe, Leitung · Plätze)
+      // Die Daten sind beim Bauen schon aufbereitet (Uhrzeit, Art der Belegung, Plätze)
       const zeiten = JSON.parse($('[data-training]', todayCard).textContent).filter((z) => z.tag === heute);
       $('[data-today-day]', todayCard).textContent = heute;
       const list = $('[data-today-list]', todayCard);
@@ -139,6 +139,14 @@ const basis = () => (document.querySelector('link[rel="stylesheet"][href$="/css/
     let index = 0;
 
     const setZoom = (on, x = 0.5, y = 0.5) => {
+      // Viele Fotos sind klein (400–800 px) – „Originalgröße“ wäre dann nicht größer.
+      // Deshalb immer mindestens auf die doppelte angezeigte Größe vergrößern.
+      if (on) {
+        const breite = img.getBoundingClientRect().width;
+        img.style.width = `${Math.round(Math.max(img.naturalWidth, breite * 2))}px`;
+      } else {
+        img.style.width = '';
+      }
       lb.classList.toggle('is-zoomed', on);
       zoomBtn.classList.toggle('is-active', on);
       zoomBtn.setAttribute('aria-label', on ? 'Verkleinern' : 'Vergrößern');

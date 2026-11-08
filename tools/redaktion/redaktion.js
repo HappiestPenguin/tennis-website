@@ -236,7 +236,7 @@
     angebote: {
       url: '/angebote/',
       bloecke: [
-        { titel: 'Platzbelegung & Trainingszeiten', hilfe: 'Öffentlich sichtbar ist nur, wann wie viele Plätze belegt sind – keine Gruppen, keine Namen (Datenschutz, besonders bei Kindern). Beim Speichern wird nach Wochentag und Uhrzeit sortiert. Tage ohne Eintrag erscheinen als „Freies Spiel“.', datei: 'data/training.json', ziel: '#training' },
+        { titel: 'Platzbelegung & Trainingszeiten', hilfe: 'Oben stellen Sie ein, ob der Plan ausführlich (mit Gruppen und Verantwortlichen) oder anonym (nur belegte Plätze) erscheint. Beim Speichern wird nach Wochentag und Uhrzeit sortiert. Tage ohne Eintrag erscheinen als „Freies Spiel“.', datei: 'data/training.json', ziel: '#training' },
         { titel: 'Text der Seite (Mitgliedschaft, Schlägerbespannung …)', datei: md('angebote'), ziel: '#mitglied-werden' },
         { titel: 'Häufige Fragen', datei: 'data/faq.json', ziel: '#faq' },
       ],
@@ -258,7 +258,7 @@
       url: '/jugend/',
       bloecke: [
         { titel: 'Text der Seite (inkl. Ergebnislisten)', datei: md('jugend'), ziel: 'main' },
-        { titel: 'Trainer (automatisch)', hilfe: 'Hier erscheinen alle Personen mit Häkchen „Im Kinder- und Jugendtraining tätig“. Trainingszeiten der Kinder werden bewusst nicht veröffentlicht – Eltern melden sich beim Abteilungsleiter oder über das Kontaktformular.', verweis: 'vorstand', verweisText: 'Personen bearbeiten', verweis2: 'angebote', verweisText2: 'Trainingszeiten bearbeiten', ziel: '.people-grid' },
+        { titel: 'Trainer und Trainingszeiten (automatisch)', hilfe: 'Hier erscheinen alle Personen mit Häkchen „Im Kinder- und Jugendtraining tätig“. Die Trainingszeiten der Kinder erscheinen nur, wenn die Platzbelegung auf „Ausführlich“ steht – sonst ein Hinweis, sich beim Abteilungsleiter zu melden.', verweis: 'vorstand', verweisText: 'Personen bearbeiten', verweis2: 'angebote', verweisText2: 'Trainingszeiten bearbeiten', ziel: '.people-grid' },
       ],
     },
     satzung: {
@@ -315,7 +315,7 @@
   /** Verständliche Feldnamen für die JSON-Dateien. */
   const LABELS = {
     titel: 'Titel', datum: 'Datum', uhrzeit: 'Uhrzeit', ort: 'Ort', beschreibung: 'Beschreibung', hinweis: 'Hinweis', hinweise: 'Hinweise',
-    termine: 'Termine', zeiten: 'Belegungszeiten', tag: 'Wochentag', von: 'Von', bis: 'Bis', art: 'Belegung', gruppe: 'Gruppe', leitung: 'Leitung', plaetze: 'Plätze',
+    termine: 'Termine', zeiten: 'Belegungszeiten', anzeige: 'Ansicht auf der Website', tag: 'Wochentag', von: 'Von', bis: 'Bis', art: 'Belegung', gruppe: 'Gruppe', leitung: 'Leitung', plaetze: 'Plätze',
     personen: 'Personen', name: 'Name', funktion: 'Funktion', zustaendig: 'Ansprechpartner für (im Vorstand)', telefon: 'Telefon', email: 'E-Mail', foto: 'Foto',
     vorstand: 'Funktion im Vorstand (leer = nicht im Vorstand)', trainer: 'Trainer-Funktion (leer = kein Trainer)', trainiert: 'Trainiert (Gruppen)',
     kontakt_freigegeben: 'Telefon/E-Mail veröffentlichen (Einverständnis der Person liegt vor)', kinder_jugend: 'Im Kinder- und Jugendtraining tätig (erscheint auf „Kinder & Jugend“)',
@@ -337,7 +337,7 @@
   const LANG = /^(beschreibung|antwort|einleitung|anfahrt|beitrag|start_text)$/; // mehrzeilige Felder („text“ siehe unten)
   const BILD = /^(bild|foto|logo|titelbild|cover)$/;
   const DATUM = /^(datum|bis|mitglieder_stand)$/;
-  const ARTEN = ['Training', 'Turnier', 'Arbeitseinsatz', 'Veranstaltung', 'Belegt'];
+  const ARTEN = ['Training', 'Freies Spiel', 'Turnier', 'Arbeitseinsatz', 'Veranstaltung', 'Belegt'];
   const WOCHENTAGE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
   const PLAETZE = [
     [0, '0 – Anlage nicht verfügbar (z. B. Turnier oder Arbeitseinsatz)'],
@@ -1190,7 +1190,7 @@
   /** Überschrift eines Listeneintrags, z. B. „Montag 16:00–17:00 · Kindertraining“. */
   function eintragTitel(item, i) {
     if (typeof item !== 'object' || !item) return String(item || `Eintrag ${i + 1}`);
-    if (item.tag) return `${item.tag} ${item.von ? `${item.von}–${item.bis}` : 'ganztags'} · ${item.art || item.gruppe || 'neue Belegung'}`;
+    if (item.tag) return `${item.tag} ${item.von ? `${item.von}–${item.bis}` : 'ganztags'} · ${item.gruppe || item.art || 'neue Belegung'}`;
     if ('datum' in item && 'titel' in item) return `${item.datum || 'ohne Datum'} · ${item.titel || 'neuer Termin'}`;
     if ('gruppe' in item && 'betrag' in item) return `${item.gruppe || 'neue Gruppe'} · ${item.betrag} €`;
     if ('name' in item && ('vorstand' in item || 'trainer' in item)) return personTitel(item);
@@ -1207,7 +1207,11 @@
       return ['Infobox oben auf der Seite „Termine“ (optional)', 'Erscheint als farbiger Kasten über der Terminliste, z. B. „Die Termine für 2027 folgen im Januar.“ Leer lassen = kein Kasten.'];
     if (key === 'hinweise' && parent && Array.isArray(parent.zeiten))
       return ['Hinweise (grüne Kästen über dem Wochenplan)', 'z. B. „Es steht immer ein Platz zum freien Spielen zur Verfügung.“'];
-    if (key === 'hinweis' && parent && 'tag' in parent) return ['Zusatz (optional)', 'Kurzer allgemeiner Zusatz, z. B. „mit Flutlicht“. Bitte keine Namen und keine Gruppen – der Plan ist öffentlich.'];
+    if (key === 'hinweis' && parent && 'tag' in parent) return ['Zusatz (optional)', 'Kurzer Zusatz, z. B. „ggf. anmelden“ – nur in der ausführlichen Ansicht sichtbar.'];
+    if (key === 'gruppe' && parent && 'tag' in parent) return ['Gruppe', 'z. B. „Kindertraining“ – nur in der ausführlichen Ansicht sichtbar.'];
+    if (key === 'leitung' && parent && 'tag' in parent) return ['Verantwortlich', 'Nur in der ausführlichen Ansicht sichtbar.'];
+    if (key === 'art' && parent && 'tag' in parent) return ['Art der Belegung', 'In der anonymen Ansicht steht nur dies (und die Zahl belegter Plätze).'];
+    if (key === 'anzeige') return ['Ansicht auf der Website', 'Ausführlich: mit Gruppen und Verantwortlichen (wie früher). Anonym: nur, wann wie viele Plätze belegt sind – Trainingszeiten werden zusammengerechnet, die Kinder-Trainingszeiten verschwinden von „Kinder & Jugend“.'];
     if (key === 'verwendungszweck') return ['Verwendungszweck', 'Teile in geschweiften Klammern (z. B. {Jahr}, {Vorname Nachname}) erscheinen als Platzhalter zum Ausfüllen.'];
     if (key === 'hinweis' && parent && 'betrag' in parent) return ['Zusatz (optional)', 'Kurzer Hinweis zur Gruppe, z. B. „bis zu 50 € zurück für Arbeitsstunden“'];
     if (key === 'titel' && parent && Array.isArray(parent.zeiten)) return ['Überschrift des Wochenplans', 'z. B. „Platzbelegung 2027“ – zu Saisonbeginn anpassen.'];
@@ -1416,7 +1420,8 @@
 
     // ---- Text / Zahl / Datum / Uhrzeit / Bild / Wochentag
     let input;
-    if (key === 'art' && parent && 'plaetze' in parent) input = `<select>${(ARTEN.includes(wert) ? ARTEN : [wert, ...ARTEN]).map((t) => `<option${t === wert ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+    if (key === 'anzeige') input = `<select>${[['anonym', 'Anonym – nur belegte Plätze'], ['ausfuehrlich', 'Ausführlich – mit Gruppen und Verantwortlichen']].map(([v, t]) => `<option value="${v}"${v === wert ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
+    else if (key === 'art' && parent && 'plaetze' in parent) input = `<select>${(ARTEN.includes(wert) ? ARTEN : [wert, ...ARTEN]).map((t) => `<option${t === wert ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
     else if (key === 'tag') input = `<select>${WOCHENTAGE.map((t) => `<option${t === wert ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
     // „von/bis“ bei Trainingszeiten = Uhrzeit, „bis“ beim Banner = Datum
     else if (key === 'uhrzeit' || ((key === 'von' || key === 'bis') && parent && 'von' in parent))
